@@ -1,5 +1,10 @@
+mod camera;
+mod player;
+
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
+use camera::CameraPlugin;
+use player::PlayerPlugin;
 
 fn main() {
     App::new()
@@ -8,19 +13,13 @@ fn main() {
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default(),
         ))
-        .add_systems(Startup, (setup_graphics, setup_physics))
-        .add_systems(Update, print_ball_altitude)
+        // custom plugins
+        .add_plugins((CameraPlugin, PlayerPlugin))
+        .add_systems(Startup, setup_physics)
         .run();
 }
 
-fn setup_graphics(mut commands: Commands) {
-    // Add a camera so we can see the debug-render.
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-3.0, 3.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..Default::default()
-    });
-}
-
+// A ball the player can kick around, lol
 fn setup_physics(mut commands: Commands) {
     /* Create the ground. */
     commands
@@ -33,11 +32,5 @@ fn setup_physics(mut commands: Commands) {
         .insert(Collider::ball(0.5))
         .insert(Restitution::coefficient(0.7))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)));
-}
-
-fn print_ball_altitude(positions: Query<&Transform, With<RigidBody>>) {
-    for transform in positions.iter() {
-        println!("Ball altitude: {}", transform.translation.y);
-    }
 }
 
