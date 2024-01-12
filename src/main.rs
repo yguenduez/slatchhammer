@@ -16,7 +16,8 @@ fn main() {
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::default(),
-            RapierDebugRenderPlugin::default(),
+            //       Uncomment for physic colliders render debug
+            //       RapierDebugRenderPlugin::default(),
         ))
         // custom plugins
         .add_plugins((CameraPlugin, PlayerPlugin, ArenaPlugin))
