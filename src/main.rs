@@ -4,6 +4,7 @@ mod player;
 
 use arena::ArenaPlugin;
 use bevy::{
+    math::vec3,
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
@@ -21,8 +22,30 @@ fn main() {
         ))
         // custom plugins
         .add_plugins((CameraPlugin, PlayerPlugin, ArenaPlugin))
-        .add_systems(Startup, setup_physics)
+        .add_systems(Startup, (setup_physics, spawn_light))
         .run();
+}
+
+fn spawn_light(mut commands: Commands) {
+    let light_poses = [
+        vec3(20.0, 20.0, -20.0),
+        vec3(-20.0, 20.0, -20.0),
+        vec3(-20.0, 20.0, 20.0),
+        vec3(20.0, 20.0, 20.0),
+    ];
+
+    light_poses.into_iter().for_each(|t| {
+        commands.spawn(PointLightBundle {
+            point_light: PointLight {
+                intensity: 9000.0,
+                range: 70.,
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_translation(t),
+            ..default()
+        });
+    })
 }
 
 // A ball the player can kick around, lol
