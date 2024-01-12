@@ -1,6 +1,8 @@
+mod arena;
 mod camera;
 mod player;
 
+use arena::ArenaPlugin;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use camera::CameraPlugin;
@@ -14,7 +16,7 @@ fn main() {
             RapierDebugRenderPlugin::default(),
         ))
         // custom plugins
-        .add_plugins((CameraPlugin, PlayerPlugin))
+        .add_plugins((CameraPlugin, PlayerPlugin, ArenaPlugin))
         .add_systems(Startup, setup_physics)
         .run();
 }
@@ -33,4 +35,3 @@ fn setup_physics(mut commands: Commands) {
         .insert(Restitution::coefficient(0.7))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)));
 }
-
