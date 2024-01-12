@@ -27,25 +27,39 @@ fn build_arena_walls(
     let wall_height = 4.0;
 
     let mesh = meshes.add(shape::Quad::new(vec2(MAP_SIZE_HALF * 2.0, wall_height * 2.0)).into());
+    let mesh_long =
+        meshes.add(shape::Quad::new(vec2(MAP_SIZE_HALF * 4.0, wall_height * 2.0)).into());
     let material = materials.add(StandardMaterial {
         base_color: Color::RED,
         ..Default::default()
     });
 
-    let transforms = [
-        Transform::from_translation(vec3(MAP_SIZE_HALF, wall_height * 0.5, 0.0))
-            .with_rotation(Quat::from_rotation_y(-FRAC_PI_2)),
-        Transform::from_translation(vec3(-MAP_SIZE_HALF, wall_height * 0.5, 0.0))
-            .with_rotation(Quat::from_rotation_y(FRAC_PI_2)),
-        Transform::from_translation(vec3(0.0, wall_height * 0.5, -MAP_SIZE_HALF)),
-        Transform::from_translation(vec3(0.0, wall_height * 0.5, MAP_SIZE_HALF)),
+    let transforms_with_mesh = [
+        (
+            Transform::from_translation(vec3(MAP_SIZE_HALF * 2.0, wall_height * 0.5, 0.0))
+                .with_rotation(Quat::from_rotation_y(-FRAC_PI_2)),
+            mesh.clone(),
+        ),
+        (
+            Transform::from_translation(vec3(-MAP_SIZE_HALF * 2.0, wall_height * 0.5, 0.0))
+                .with_rotation(Quat::from_rotation_y(FRAC_PI_2)),
+            mesh.clone(),
+        ),
+        (
+            Transform::from_translation(vec3(0.0, wall_height * 0.5, -MAP_SIZE_HALF)),
+            mesh_long.clone(),
+        ),
+        (
+            Transform::from_translation(vec3(0.0, wall_height * 0.5, MAP_SIZE_HALF)),
+            mesh_long.clone(),
+        ),
     ];
 
-    for t in transforms {
+    for (t, m) in transforms_with_mesh {
         commands.spawn((
             NotShadowCaster,
             MaterialMeshBundle {
-                mesh: mesh.clone(),
+                mesh: m,
                 transform: t,
                 material: material.clone(),
                 ..Default::default()
@@ -61,11 +75,11 @@ fn build_ground(
 ) {
     /* Create the ground. */
     commands
-        .spawn(Collider::cuboid(100.0, 0.1, 100.0))
+        .spawn(Collider::cuboid(200.0, 0.1, 100.0))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, -0.1, 0.0)));
 
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(50.0).into()),
+        mesh: meshes.add(shape::Plane::from_size(100.0).into()),
         material: materials.add(Color::SILVER.into()),
         ..Default::default()
     });
@@ -76,20 +90,20 @@ fn build_collider_walls(mut commands: Commands) {
     let wall_thickness_half = wall_thickness * 0.5;
     let transforms_with_collider = [
         (
-            Transform::from_translation(vec3(MAP_SIZE_HALF + wall_thickness_half, 0.0, 0.0)),
+            Transform::from_translation(vec3(MAP_SIZE_HALF * 2.0 + wall_thickness_half, 0.0, 0.0)),
             Collider::cuboid(wall_thickness, 10., MAP_SIZE_HALF),
         ),
         (
-            Transform::from_translation(vec3(-MAP_SIZE_HALF - wall_thickness_half, 0.0, 0.0)),
+            Transform::from_translation(vec3(-MAP_SIZE_HALF * 2.0 - wall_thickness_half, 0.0, 0.0)),
             Collider::cuboid(wall_thickness, 10., MAP_SIZE_HALF),
         ),
         (
             Transform::from_translation(vec3(0.0, 0.0, MAP_SIZE_HALF + wall_thickness_half)),
-            Collider::cuboid(MAP_SIZE_HALF, 10., wall_thickness),
+            Collider::cuboid(MAP_SIZE_HALF * 2.0, 10., wall_thickness),
         ),
         (
             Transform::from_translation(vec3(0.0, 0.0, -MAP_SIZE_HALF - wall_thickness_half)),
-            Collider::cuboid(MAP_SIZE_HALF, 10., wall_thickness),
+            Collider::cuboid(MAP_SIZE_HALF * 2.0, 10., wall_thickness),
         ),
     ];
 
