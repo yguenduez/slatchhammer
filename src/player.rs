@@ -1,12 +1,18 @@
 use bevy::{
     app::{Plugin, Startup, Update},
+    asset::Assets,
     ecs::{
         component::Component,
         query::With,
-        system::{Commands, Query, Res},
+        system::{Commands, Query, Res, ResMut},
     },
     input::{keyboard::KeyCode, Input},
     math::{vec3, Quat, Vec3},
+    pbr::{PbrBundle, StandardMaterial},
+    render::{
+        color::Color,
+        mesh::{shape, Mesh},
+    },
     time::Time,
     transform::{components::Transform, TransformBundle},
 };
@@ -71,23 +77,38 @@ fn movement_axis(input: &Input<KeyCode>, left: KeyCode, right: KeyCode) -> f32 {
     }
 }
 
-fn spawn_player(mut commands: Commands) {
-    commands.spawn((
-        Player,
-        PlayerInput::default(),
-        RigidBody::Dynamic,
-        Collider::capsule(Vec3::ZERO, Vec3::Y, 0.5),
-        Velocity::default(),
-        TransformBundle::default(),
-        ExternalForce {
-            force: Vec3::ZERO,
-            torque: Vec3::ZERO,
-        },
-        GravityScale(1.0),
-        LockedAxes::ROTATION_LOCKED_X
-            | LockedAxes::ROTATION_LOCKED_Z
-            | LockedAxes::ROTATION_LOCKED_Y,
-    ));
+fn spawn_player(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let mesh = meshes.add(shape::Cylinder::default().into());
+    let material = materials.add(StandardMaterial {
+        base_color: Color::BLUE,
+        ..Default::default()
+    });
+    commands
+        .spawn((
+            Player,
+            PlayerInput::default(),
+            RigidBody::Dynamic,
+            Collider::capsule(Vec3::ZERO, Vec3::Y, 0.5),
+            Velocity::default(),
+            ExternalForce {
+                force: Vec3::ZERO,
+                torque: Vec3::ZERO,
+            },
+            GravityScale(1.0),
+            LockedAxes::ROTATION_LOCKED_X
+                | LockedAxes::ROTATION_LOCKED_Z
+                | LockedAxes::ROTATION_LOCKED_Y,
+        ))
+        .insert(PbrBundle {
+            mesh,
+            material,
+            transform: Transform::from_xyz(0.0, 4.0, 0.0),
+            ..Default::default()
+        });
 }
 
 pub struct PlayerPlugin;
@@ -98,4 +119,3 @@ impl Plugin for PlayerPlugin {
             .add_systems(Update, (apply_movement, movement_input));
     }
 }
-
