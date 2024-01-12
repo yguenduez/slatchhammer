@@ -43,7 +43,7 @@ fn setup_physics(
     commands
         .spawn(RigidBody::Dynamic)
         .insert(Collider::ball(0.5))
-        .insert(Restitution::coefficient(0.7))
+        .insert(Restitution::coefficient(1.5))
         .insert(PbrBundle {
             mesh,
             material: debug_material,
