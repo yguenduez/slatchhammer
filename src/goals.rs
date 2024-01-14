@@ -139,6 +139,7 @@ fn check_collision_for_goals(
     q_goal_type: Query<&GoalType>,
 ) {
     for ev in collision_events.read() {
+        println!("{:?}", ev);
         match ev {
             CollisionEvent::Started(_, target_entity, _) => {
                 if let Ok(goal_type) = q_goal_type.get(*target_entity) {
