@@ -14,7 +14,7 @@ use bevy::{
         mesh::{shape, Mesh},
     },
     time::Time,
-    transform::{components::Transform, TransformBundle},
+    transform::components::Transform,
 };
 
 use bevy_rapier3d::{
