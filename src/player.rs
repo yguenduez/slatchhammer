@@ -3,7 +3,7 @@ use bevy::{
     asset::Assets,
     ecs::{
         component::Component,
-        query::With,
+        query::{With, Without},
         system::{Commands, Query, Res, ResMut},
     },
     input::{keyboard::KeyCode, Input},
@@ -25,7 +25,10 @@ use bevy_rapier3d::{
 use crate::camera::MainCamera;
 
 #[derive(Component)]
-struct Player;
+struct Player1;
+
+#[derive(Component)]
+struct Player2;
 
 #[derive(Component, Default)]
 struct PlayerInput {
@@ -34,16 +37,24 @@ struct PlayerInput {
 
 fn movement_input(
     input: Res<Input<KeyCode>>,
-    mut query: Query<&mut PlayerInput, With<Player>>,
-    cameras: Query<&Transform, With<MainCamera>>,
+    mut query_p1: Query<&mut PlayerInput, (With<Player1>, Without<Player2>)>,
+    mut query_p2: Query<&mut PlayerInput, (With<Player2>, Without<Player1>)>,
+    camera: Query<&Transform, With<MainCamera>>,
 ) {
-    let camera_transform = cameras.single();
+    let camera_transform = camera.single();
     let forward = camera_transform.right();
     let rotation = Quat::from_axis_angle(Vec3::Y, forward.y);
 
-    for mut player_input in query.iter_mut() {
+    for mut player_input in query_p1.iter_mut() {
         let x = movement_axis(&input, KeyCode::A, KeyCode::D);
         let z = movement_axis(&input, KeyCode::W, KeyCode::S);
+        let dir = vec3(x, 0.0, z).normalize_or_zero();
+        let dir = rotation * dir;
+        player_input.movement = dir;
+    }
+    for mut player_input in query_p2.iter_mut() {
+        let x = movement_axis(&input, KeyCode::Left, KeyCode::Right);
+        let z = movement_axis(&input, KeyCode::Up, KeyCode::Down);
         let dir = vec3(x, 0.0, z).normalize_or_zero();
         let dir = rotation * dir;
         player_input.movement = dir;
@@ -51,7 +62,7 @@ fn movement_input(
 }
 
 fn apply_movement(
-    mut query: Query<(&PlayerInput, &mut Transform, &mut Velocity), With<Player>>,
+    mut query: Query<(&PlayerInput, &mut Transform, &mut Velocity)>,
     time: Res<Time>,
 ) {
     const PLAYER_MOVEMENT_SPEED: f32 = 10.;
@@ -83,13 +94,18 @@ fn spawn_player(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let mesh = meshes.add(shape::Cylinder::default().into());
-    let material = materials.add(StandardMaterial {
-        base_color: Color::BLUE,
+    let material_green = materials.add(StandardMaterial {
+        base_color: Color::GREEN,
         ..Default::default()
     });
+    let material_orange = materials.add(StandardMaterial {
+        base_color: Color::ORANGE,
+        ..Default::default()
+    });
+
     commands
         .spawn((
-            Player,
+            Player1,
             PlayerInput::default(),
             RigidBody::Dynamic,
             Collider::capsule(Vec3::ZERO, Vec3::Y, 0.5),
@@ -104,9 +120,31 @@ fn spawn_player(
                 | LockedAxes::ROTATION_LOCKED_Y,
         ))
         .insert(PbrBundle {
-            mesh,
-            material,
-            transform: Transform::from_xyz(0.0, 4.0, 0.0),
+            mesh: mesh.clone(),
+            material: material_green,
+            transform: Transform::from_translation(vec3(10.0, 4.0, 0.)),
+            ..Default::default()
+        });
+    commands
+        .spawn((
+            Player2,
+            PlayerInput::default(),
+            RigidBody::Dynamic,
+            Collider::capsule(Vec3::ZERO, Vec3::Y, 0.5),
+            Velocity::default(),
+            ExternalForce {
+                force: Vec3::ZERO,
+                torque: Vec3::ZERO,
+            },
+            GravityScale(1.0),
+            LockedAxes::ROTATION_LOCKED_X
+                | LockedAxes::ROTATION_LOCKED_Z
+                | LockedAxes::ROTATION_LOCKED_Y,
+        ))
+        .insert(PbrBundle {
+            mesh: mesh.clone(),
+            material: material_orange,
+            transform: Transform::from_translation(vec3(-10.0, 4.0, 0.0)),
             ..Default::default()
         });
 }
