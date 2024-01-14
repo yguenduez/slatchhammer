@@ -6,11 +6,12 @@ Idea: A webassembly 1v1 football game on one machine?
 Todo (MVP):
 - √ Arena: Bounderies, Floor
 - √ To WebAssembly to play in the web with e.g. vercel
-- Goals: to achieve points
-- Points
+- √ Goals: to achieve points
+- √ Points
 - Reset After goal - initial position of players
-- Win game after time is up
+- Win game after time is up (Timer)
 - Menu with play the game etc.
+- Menu with New Game, after Game finished
 
 Further Ideas:
 - Sprint, which depletes, when using
