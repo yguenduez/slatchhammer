@@ -1,13 +1,14 @@
 use std::f32::consts::FRAC_PI_2;
 
 use bevy::{
-    app::{Plugin, Startup},
+    app::{Plugin, Startup, Update},
     asset::Assets,
     ecs::{
         component::Component,
-        system::{Commands, ResMut},
+        event::{Event, EventReader, EventWriter},
+        system::{Commands, Query, ResMut},
     },
-    math::{vec2, vec3, Quat},
+    math::{vec3, Quat},
     pbr::{MaterialMeshBundle, NotShadowCaster, PbrBundle, StandardMaterial},
     render::{
         color::Color,
@@ -18,6 +19,7 @@ use bevy::{
 use bevy_rapier3d::{
     dynamics::RigidBody,
     geometry::{Collider, ColliderMassProperties},
+    pipeline::CollisionEvent,
 };
 
 #[derive(Component)]
@@ -81,6 +83,7 @@ fn build_goal_colliders(mut commands: Commands) {
                 0.0,
             )),
             Collider::cuboid(GOAL_THICKNESS * 0.5, GOAL_HEIGHT, GOAL_SIZE * 0.5),
+            GoalType::First,
         ),
         (
             Transform::from_translation(vec3(
@@ -89,10 +92,11 @@ fn build_goal_colliders(mut commands: Commands) {
                 0.0,
             )),
             Collider::cuboid(GOAL_THICKNESS * 0.5, GOAL_HEIGHT, GOAL_SIZE * 0.5),
+            GoalType::Second,
         ),
     ];
 
-    for (t, c) in transforms_with_collider {
+    for (t, c, goal_type) in transforms_with_collider {
         commands.spawn((
             c,
             RigidBody::Fixed,
@@ -101,13 +105,56 @@ fn build_goal_colliders(mut commands: Commands) {
                 transform: t,
                 ..Default::default()
             },
+            goal_type,
         ));
     }
 }
 
+#[derive(Component)]
+pub enum GoalType {
+    First,
+    Second,
+}
+
+pub enum PlayerType {
+    First,
+    Second,
+}
+
+#[derive(Event)]
+pub struct GoalEvent {
+    pub amount: u32,
+    pub player: PlayerType,
+}
+
+fn check_collision_for_goals(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut goal_event_writer: EventWriter<GoalEvent>,
+    q_goal_type: Query<&GoalType>,
+) {
+    for ev in collision_events.read() {
+        match ev {
+            CollisionEvent::Started(_, target_entity, _) => {
+                if let Ok(goal_type) = q_goal_type.get(*target_entity) {
+                    let player_type = match goal_type {
+                        GoalType::First => PlayerType::First,
+                        GoalType::Second => PlayerType::Second,
+                    };
+                    goal_event_writer.send(GoalEvent {
+                        amount: 1,
+                        player: player_type,
+                    });
+                }
+            }
+            CollisionEvent::Stopped(_, _, _) => {}
+        }
+    }
+}
 pub struct GoalPlugin;
 impl Plugin for GoalPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(Startup, (build_goal_meshes, build_goal_colliders));
+        app.add_systems(Startup, (build_goal_meshes, build_goal_colliders))
+            .add_systems(Update, (check_collision_for_goals))
+            .add_event::<GoalEvent>();
     }
 }

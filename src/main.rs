@@ -1,6 +1,8 @@
 mod arena;
 mod camera;
+mod goals;
 mod player;
+mod points;
 
 use arena::ArenaPlugin;
 use bevy::{
@@ -10,7 +12,9 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::*;
 use camera::CameraPlugin;
+use goals::GoalPlugin;
 use player::PlayerPlugin;
+use points::PointsPlugin;
 
 fn main() {
     App::new()
@@ -28,10 +32,16 @@ fn main() {
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::default(),
             //       Uncomment for physic colliders render debug
-            //       RapierDebugRenderPlugin::default(),
+            RapierDebugRenderPlugin::default(),
         ))
         // custom plugins
-        .add_plugins((CameraPlugin, PlayerPlugin, ArenaPlugin))
+        .add_plugins((
+            CameraPlugin,
+            PlayerPlugin,
+            ArenaPlugin,
+            GoalPlugin,
+            PointsPlugin,
+        ))
         .add_systems(Startup, (setup_physics, spawn_light))
         .run();
 }
@@ -76,6 +86,7 @@ fn setup_physics(
     commands
         .spawn(RigidBody::Dynamic)
         .insert(Collider::ball(0.5))
+        .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Restitution::coefficient(1.5))
         .insert(PbrBundle {
             mesh,
