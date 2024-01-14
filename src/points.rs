@@ -71,12 +71,16 @@ fn setup_points_ui(mut commands: Commands) {
             },
         ))
         .id();
-    // create our text
-    let text_style = TextStyle {
-        font_size: 16.,
-        color: Color::WHITE,
-        ..Default::default()
-    };
+
+    let colors: Vec<TextStyle> = [Color::GREEN, Color::WHITE, Color::ORANGE]
+        .iter()
+        .map(|c| TextStyle {
+            font_size: 16.,
+            color: *c,
+            ..Default::default()
+        })
+        .collect();
+
     let text_fps = commands
         .spawn((
             PointsText,
@@ -85,15 +89,15 @@ fn setup_points_ui(mut commands: Commands) {
                 text: Text::from_sections([
                     TextSection {
                         value: "Player 1: ".into(),
-                        style: text_style.clone(),
+                        style: colors[0].clone(),
                     },
                     TextSection {
                         value: "----".into(),
-                        style: text_style.clone(),
+                        style: colors[1].clone(),
                     },
                     TextSection {
                         value: "Player 2:".into(),
-                        style: text_style,
+                        style: colors[2].clone(),
                     },
                 ]),
                 ..Default::default()

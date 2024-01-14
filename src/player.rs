@@ -122,7 +122,7 @@ fn spawn_player(
         .insert(PbrBundle {
             mesh: mesh.clone(),
             material: material_green,
-            transform: Transform::from_translation(vec3(10.0, 4.0, 0.)),
+            transform: Transform::from_translation(vec3(-10.0, 4.0, 0.)),
             ..Default::default()
         });
     commands
@@ -144,7 +144,7 @@ fn spawn_player(
         .insert(PbrBundle {
             mesh: mesh.clone(),
             material: material_orange,
-            transform: Transform::from_translation(vec3(-10.0, 4.0, 0.0)),
+            transform: Transform::from_translation(vec3(10.0, 4.0, 0.0)),
             ..Default::default()
         });
 }

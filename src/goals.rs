@@ -36,11 +36,15 @@ fn build_goal_meshes(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let mesh = meshes.add(shape::Box::new(GOAL_SIZE, GOAL_HEIGHT * 2.0, GOAL_THICKNESS).into());
-    let material = materials.add(StandardMaterial {
-        base_color: Color::BLUE,
+    let material_green = materials.add(StandardMaterial {
+        base_color: Color::GREEN,
         ..Default::default()
     });
 
+    let material_orange = materials.add(StandardMaterial {
+        base_color: Color::ORANGE,
+        ..Default::default()
+    });
     let transforms_with_mesh = [
         (
             Transform::from_translation(vec3(
@@ -50,6 +54,7 @@ fn build_goal_meshes(
             ))
             .with_rotation(Quat::from_rotation_y(-FRAC_PI_2)),
             mesh.clone(),
+            material_orange,
         ),
         (
             Transform::from_translation(vec3(
@@ -59,16 +64,17 @@ fn build_goal_meshes(
             ))
             .with_rotation(Quat::from_rotation_y(FRAC_PI_2)),
             mesh.clone(),
+            material_green,
         ),
     ];
 
-    for (t, m) in transforms_with_mesh {
+    for (t, m, color) in transforms_with_mesh {
         commands.spawn((
             NotShadowCaster,
             MaterialMeshBundle {
                 mesh: m,
                 transform: t,
-                material: material.clone(),
+                material: color,
                 ..Default::default()
             },
         ));
