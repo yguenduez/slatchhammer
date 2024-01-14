@@ -133,24 +133,31 @@ pub struct GoalEvent {
     pub player: PlayerType,
 }
 
+fn send_goal_event(goal_type: &GoalType, goal_event_writer: &mut EventWriter<GoalEvent>) {
+    let player_type = match goal_type {
+        GoalType::First => PlayerType::First,
+        GoalType::Second => PlayerType::Second,
+    };
+    goal_event_writer.send(GoalEvent {
+        amount: 1,
+        player: player_type,
+    });
+}
+
 fn check_collision_for_goals(
     mut collision_events: EventReader<CollisionEvent>,
     mut goal_event_writer: EventWriter<GoalEvent>,
     q_goal_type: Query<&GoalType>,
 ) {
     for ev in collision_events.read() {
-        println!("{:?}", ev);
         match ev {
-            CollisionEvent::Started(_, target_entity, _) => {
-                if let Ok(goal_type) = q_goal_type.get(*target_entity) {
-                    let player_type = match goal_type {
-                        GoalType::First => PlayerType::First,
-                        GoalType::Second => PlayerType::Second,
-                    };
-                    goal_event_writer.send(GoalEvent {
-                        amount: 1,
-                        player: player_type,
-                    });
+            CollisionEvent::Started(first_collider, second_collider, _) => {
+                if let Ok(goal_type) = q_goal_type.get(*second_collider) {
+                    send_goal_event(goal_type, &mut goal_event_writer)
+                }
+
+                if let Ok(goal_type) = q_goal_type.get(*first_collider) {
+                    send_goal_event(goal_type, &mut goal_event_writer)
                 }
             }
             CollisionEvent::Stopped(_, _, _) => {}
