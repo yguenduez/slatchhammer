@@ -14,7 +14,17 @@ use player::PlayerPlugin;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        canvas: Some("#slatchhammer-canvas".to_string()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
+        )
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::default(),
             //       Uncomment for physic colliders render debug
