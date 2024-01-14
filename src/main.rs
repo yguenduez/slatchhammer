@@ -32,7 +32,7 @@ fn main() {
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::default(),
             //       Uncomment for physic colliders render debug
-            RapierDebugRenderPlugin::default(),
+            // RapierDebugRenderPlugin::default(),
         ))
         // custom plugins
         .add_plugins((

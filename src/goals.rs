@@ -161,7 +161,7 @@ pub struct GoalPlugin;
 impl Plugin for GoalPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Startup, (build_goal_meshes, build_goal_colliders))
-            .add_systems(Update, (check_collision_for_goals))
+            .add_systems(Update, check_collision_for_goals)
             .add_event::<GoalEvent>();
     }
 }
