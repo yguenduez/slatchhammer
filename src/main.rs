@@ -5,6 +5,7 @@ mod game_state;
 mod goals;
 mod player;
 mod points;
+mod ui;
 
 use arena::ArenaPlugin;
 use bevy::{
@@ -18,6 +19,7 @@ use game_state::GameStatePlugin;
 use goals::GoalPlugin;
 use player::PlayerPlugin;
 use points::PointsPlugin;
+use ui::UiPlugin;
 
 fn main() {
     App::new()
@@ -45,6 +47,7 @@ fn main() {
             GoalPlugin,
             PointsPlugin,
             GameStatePlugin,
+            UiPlugin,
         ))
         .add_systems(Startup, (spawn_ball, spawn_light))
         .run();
