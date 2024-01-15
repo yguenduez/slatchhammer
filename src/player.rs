@@ -22,13 +22,16 @@ use bevy_rapier3d::{
     geometry::Collider,
 };
 
-use crate::camera::MainCamera;
+use crate::{
+    camera::MainCamera,
+    constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT},
+};
 
 #[derive(Component)]
-struct Player1;
+pub struct Player1;
 
 #[derive(Component)]
-struct Player2;
+pub struct Player2;
 
 #[derive(Component, Default)]
 struct PlayerInput {
@@ -122,7 +125,7 @@ fn spawn_player(
         .insert(PbrBundle {
             mesh: mesh.clone(),
             material: material_green,
-            transform: Transform::from_translation(vec3(-10.0, 4.0, 0.)),
+            transform: Transform::from_translation(PLAYER1_STARTING_POINT),
             ..Default::default()
         });
     commands
@@ -144,7 +147,7 @@ fn spawn_player(
         .insert(PbrBundle {
             mesh: mesh.clone(),
             material: material_orange,
-            transform: Transform::from_translation(vec3(10.0, 4.0, 0.0)),
+            transform: Transform::from_translation(PLAYER2_STARTING_POINT),
             ..Default::default()
         });
 }
