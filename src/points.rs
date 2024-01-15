@@ -15,7 +15,10 @@ use bevy::{
     },
 };
 
-use crate::goals::{GoalEvent, PlayerType};
+use crate::{
+    game_state::GameTime,
+    goals::{GoalEvent, PlayerType},
+};
 
 fn update_player_points(mut q_points: Query<&mut Points>, mut goal_events: EventReader<GoalEvent>) {
     let mut points = q_points.single_mut();
@@ -122,10 +125,23 @@ fn spawn_points(mut commands: Commands) {
     commands.spawn(Points::default());
 }
 
+fn display_game_time(q_timer: Query<&mut GameTime>) {
+    if let Ok(time) = q_timer.get_single() {
+        println!("{:?}", time.current_time());
+    }
+}
+
 pub struct PointsPlugin;
 impl Plugin for PointsPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Startup, (setup_points_ui, spawn_points))
-            .add_systems(Update, (update_player_points, point_text_update_system));
+            .add_systems(
+                Update,
+                (
+                    update_player_points,
+                    point_text_update_system,
+                    display_game_time,
+                ),
+            );
     }
 }
