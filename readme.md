@@ -9,6 +9,7 @@ Todo (MVP):
 - √ Goals: to achieve points
 - √ Points
 - √ Reset After goal - initial position of players
+- √ Add a timer for one game
 - Win game after time is up (Timer)
 - Menu with play the game etc.
 - Menu with New Game, after Game finished
