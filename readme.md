@@ -8,7 +8,7 @@ Todo (MVP):
 - √ To WebAssembly to play in the web with e.g. vercel
 - √ Goals: to achieve points
 - √ Points
-- Reset After goal - initial position of players
+- √ Reset After goal - initial position of players
 - Win game after time is up (Timer)
 - Menu with play the game etc.
 - Menu with New Game, after Game finished
