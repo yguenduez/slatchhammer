@@ -1,5 +1,7 @@
 mod arena;
 mod camera;
+mod constants;
+mod game_state;
 mod goals;
 mod player;
 mod points;
@@ -12,6 +14,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::*;
 use camera::CameraPlugin;
+use game_state::GameStatePlugin;
 use goals::GoalPlugin;
 use player::PlayerPlugin;
 use points::PointsPlugin;
@@ -41,8 +44,9 @@ fn main() {
             ArenaPlugin,
             GoalPlugin,
             PointsPlugin,
+            GameStatePlugin,
         ))
-        .add_systems(Startup, (setup_physics, spawn_light))
+        .add_systems(Startup, (spawn_ball, spawn_light))
         .run();
 }
 
@@ -69,7 +73,9 @@ fn spawn_light(mut commands: Commands) {
 }
 
 // A ball the player can kick around, lol
-fn setup_physics(
+#[derive(Component)]
+pub struct Ball;
+fn spawn_ball(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut images: ResMut<Assets<Image>>,
@@ -85,7 +91,9 @@ fn setup_physics(
     let mesh = meshes.add(shape.into());
     commands
         .spawn(RigidBody::Dynamic)
+        .insert(Ball)
         .insert(Collider::ball(0.5))
+        .insert(Velocity::default())
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Restitution::coefficient(1.5))
         .insert(PbrBundle {
