@@ -103,8 +103,8 @@ fn setup_points_ui(mut commands: Commands) {
                     position_type: PositionType::Absolute,
                     // position it at the top-right corner
                     // 1% away from the top window edge
-                    right: Val::Percent(1.),
-                    top: Val::Percent(1.),
+                    right: Val::Percent(45.),
+                    top: Val::Percent(5.),
                     // set bottom/left to Auto, so it can be
                     // automatically sized depending on the text
                     bottom: Val::Auto,
@@ -138,7 +138,7 @@ fn setup_points_ui(mut commands: Commands) {
                         style: colors[0].clone(),
                     },
                     TextSection {
-                        value: "----".into(),
+                        value: ":".into(),
                         style: colors[1].clone(),
                     },
                     TextSection {
@@ -159,8 +159,8 @@ fn point_text_update_system(
 ) {
     let points = q_points.single();
     for mut text in &mut query {
-        text.sections[0].value = format!("Player 1:{}", points.player_1);
-        text.sections[2].value = format!("Player 2:{}", points.player_2);
+        text.sections[0].value = format!("{}", points.player_1);
+        text.sections[2].value = format!("{}", points.player_2);
     }
 }
 
