@@ -2,19 +2,27 @@ use bevy::{
     app::{Plugin, Startup, Update},
     ecs::{
         component::Component,
+        entity::Entity,
+        event::EventReader,
         query::With,
-        system::{Commands, Query},
+        system::{Commands, Query, Res},
     },
-    hierarchy::BuildChildren,
+    hierarchy::{BuildChildren, DespawnRecursiveExt},
+    prelude::{Deref, DerefMut},
     render::color::Color,
     text::{Text, TextSection, TextStyle},
+    time::{Time, Timer, TimerMode},
     ui::{
         node_bundles::{NodeBundle, TextBundle},
-        BackgroundColor, PositionType, Style, UiRect, Val, ZIndex,
+        AlignItems, BackgroundColor, JustifyContent, PositionType, Style, UiRect, Val, ZIndex,
     },
 };
 
-use crate::{game_state::GameTime, points::Points};
+use crate::{
+    constants::DISPLAY_DESPAWN_TIME,
+    game_state::{EndState, GameEndEvent, GameTime},
+    points::Points,
+};
 
 /// Marker to find the container entity so we can show/hide the FPS counter
 #[derive(Component)]
@@ -85,6 +93,83 @@ fn setup_time_ui(mut commands: Commands) {
         ))
         .id();
     commands.entity(root).push_children(&[time_text]);
+}
+
+#[derive(Component)]
+struct MainUi;
+
+#[derive(Component)]
+struct GameEndText;
+
+#[derive(Component, Deref, DerefMut)]
+struct DisplayTime(pub Timer);
+
+fn spawn_game_end_notification(
+    mut commands: Commands,
+    mut game_end_event: EventReader<GameEndEvent>,
+) {
+    for ev in game_end_event.read() {
+        println!("I GOT SPAWNED!");
+        let color = TextStyle {
+            font_size: 32.,
+            color: Color::WHITE,
+            ..Default::default()
+        };
+
+        let text = match ev.end_state {
+            EndState::Player1Won => "Player 1 Won!",
+            EndState::Player2Won => "Player 2 Won!",
+            EndState::Draw => "Draw :/",
+        }
+        .to_string();
+
+        commands
+            .spawn((
+                MainUi,
+                DisplayTime(Timer::from_seconds(DISPLAY_DESPAWN_TIME, TimerMode::Once)),
+                NodeBundle {
+                    background_color: BackgroundColor(Color::BLACK.with_a(0.8)),
+                    z_index: ZIndex::Global(i32::MAX),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Val::Percent(100.),
+                        height: Val::Percent(100.),
+                        padding: UiRect::all(Val::Px(4.0)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            ))
+            .with_children(|parent| {
+                parent.spawn((TextBundle {
+                    text: Text::from_sections([TextSection {
+                        value: text,
+                        style: color,
+                    }]),
+                    ..Default::default()
+                },));
+            });
+    }
+}
+
+fn update_display_timers(time: Res<Time>, mut q_timers: Query<&mut DisplayTime>) {
+    for mut display_time in q_timers.iter_mut() {
+        display_time.tick(time.delta());
+    }
+}
+
+fn despawn_entities_with_display_time(
+    mut commands: Commands,
+    mut notifications: Query<(Entity, &DisplayTime), With<MainUi>>,
+) {
+    for (entity, display_time) in notifications.iter_mut() {
+        if display_time.just_finished() {
+            println!("I WAS TRIGGERED!");
+            commands.entity(entity).despawn_recursive();
+        }
+    }
 }
 
 fn setup_points_ui(mut commands: Commands) {
@@ -177,6 +262,15 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Startup, (setup_points_ui, setup_time_ui))
-            .add_systems(Update, (point_text_update_system, display_game_time));
+            .add_systems(
+                Update,
+                (
+                    point_text_update_system,
+                    display_game_time,
+                    spawn_game_end_notification,
+                    update_display_timers,
+                    despawn_entities_with_display_time,
+                ),
+            );
     }
 }
