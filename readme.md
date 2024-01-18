@@ -4,7 +4,7 @@ Idea: A webassembly 1v1 football game on one machine.
 
 ## Play it
 
-You can play it live: [slatchhammer.yguenduez.dev](slatchhammer.yguenduez.dev)
+You can play it live: [slatchhammer.yguenduez.dev](https://slatchhammer.yguenduez.dev)
 
 Player 1: WASD  
 Player 2: Arrow keys
