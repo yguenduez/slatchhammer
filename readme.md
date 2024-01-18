@@ -1,7 +1,6 @@
 # Slatchhammer
 
-Idea: A webassembly 1v1 football game on one machine?
-
+Idea: A webassembly 1v1 football game on one machine
 
 Todo (MVP):
 - √ Arena: Bounderies, Floor
