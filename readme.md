@@ -10,7 +10,7 @@ Todo (MVP):
 - √ Points
 - √ Reset After goal - initial position of players
 - √ Add a timer for one game
-- Win game after time is up (Timer)
+- √ Win game after time is up (Timer)
 - Menu with play the game etc.
 - Menu with New Game, after Game finished
 
@@ -28,7 +28,7 @@ Further Ideas:
 
 # Docu
 
-Run this game as webassembly.
+## Run this game as webassembly.
 
 First compile it to wasm:
 
@@ -51,4 +51,10 @@ Then load the `init()` function from the gluecode
     import init from './out/slatchhammer.js'
     init()
 </script>
+```
+
+## Run natively
+
+```shell
+cargo run (--release)
 ```
