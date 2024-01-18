@@ -11,10 +11,10 @@ Todo (MVP):
 - √ Reset After goal - initial position of players
 - √ Add a timer for one game
 - √ Win game after time is up (Timer)
-- Menu with play the game etc.
-- Menu with New Game, after Game finished
 
 Further Ideas:
+- Ingame Menu - to manually start a match
+- Choose character with different properties (mass,velocity,restitution,...)
 - Sprint, which depletes, when using
 - Items like:
   - Power-ups
