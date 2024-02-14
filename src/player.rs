@@ -24,7 +24,7 @@ use bevy_rapier3d::{
 
 use crate::{
     camera::MainCamera,
-    constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT},
+    constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT, PLAYER_MOVEMENT_SPEED},
 };
 
 #[derive(Component)]
@@ -36,6 +36,7 @@ pub struct Player2;
 #[derive(Component, Default)]
 struct PlayerInput {
     movement: Vec3,
+    current_velocity: f32,
 }
 
 fn movement_input(
@@ -49,18 +50,32 @@ fn movement_input(
     let rotation = Quat::from_axis_angle(Vec3::Y, forward.y);
 
     for mut player_input in query_p1.iter_mut() {
-        let x = movement_axis(&input, KeyCode::A, KeyCode::D);
-        let z = movement_axis(&input, KeyCode::W, KeyCode::S);
+        let (x, z, vel) = dir_and_speed(
+            &input,
+            KeyCode::A,
+            KeyCode::D,
+            KeyCode::W,
+            KeyCode::S,
+            KeyCode::ShiftLeft,
+        );
         let dir = vec3(x, 0.0, z).normalize_or_zero();
         let dir = rotation * dir;
         player_input.movement = dir;
+        player_input.current_velocity = vel;
     }
     for mut player_input in query_p2.iter_mut() {
-        let x = movement_axis(&input, KeyCode::Left, KeyCode::Right);
-        let z = movement_axis(&input, KeyCode::Up, KeyCode::Down);
+        let (x, z, vel) = dir_and_speed(
+            &input,
+            KeyCode::Left,
+            KeyCode::Right,
+            KeyCode::Up,
+            KeyCode::Down,
+            KeyCode::ShiftRight,
+        );
         let dir = vec3(x, 0.0, z).normalize_or_zero();
         let dir = rotation * dir;
         player_input.movement = dir;
+        player_input.current_velocity = vel;
     }
 }
 
@@ -68,11 +83,10 @@ fn apply_movement(
     mut query: Query<(&PlayerInput, &mut Transform, &mut Velocity)>,
     time: Res<Time>,
 ) {
-    const PLAYER_MOVEMENT_SPEED: f32 = 10.;
     for (input, mut transform, mut velocity) in query.iter_mut() {
         let norm_input = input.movement.normalize_or_zero();
 
-        let desired_velocity = norm_input * PLAYER_MOVEMENT_SPEED;
+        let desired_velocity = norm_input * input.current_velocity;
         velocity.linvel = Vec3::lerp(
             velocity.linvel,
             desired_velocity,
@@ -80,6 +94,29 @@ fn apply_movement(
         );
 
         transform.rotation = Quat::from_rotation_y(f32::atan2(norm_input.x, norm_input.z));
+    }
+}
+
+fn dir_and_speed(
+    input: &Input<KeyCode>,
+    left: KeyCode,
+    right: KeyCode,
+    up: KeyCode,
+    down: KeyCode,
+    sprint: KeyCode,
+) -> (f32, f32, f32) {
+    (
+        movement_axis(input, left, right),
+        movement_axis(input, up, down),
+        adapt_velocity(input, sprint),
+    )
+}
+
+fn adapt_velocity(input: &Input<KeyCode>, sprint_button: KeyCode) -> f32 {
+    if input.pressed(sprint_button) {
+        PLAYER_MOVEMENT_SPEED * 2.0
+    } else {
+        PLAYER_MOVEMENT_SPEED
     }
 }
 
