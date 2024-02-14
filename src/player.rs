@@ -24,7 +24,7 @@ use bevy_rapier3d::{
 
 use crate::{
     camera::MainCamera,
-    constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT},
+    constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT, PLAYER_MOVEMENT_SPEED},
 };
 
 #[derive(Component)]
@@ -68,7 +68,6 @@ fn apply_movement(
     mut query: Query<(&PlayerInput, &mut Transform, &mut Velocity)>,
     time: Res<Time>,
 ) {
-    const PLAYER_MOVEMENT_SPEED: f32 = 10.;
     for (input, mut transform, mut velocity) in query.iter_mut() {
         let norm_input = input.movement.normalize_or_zero();
 

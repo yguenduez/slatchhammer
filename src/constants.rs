@@ -6,3 +6,4 @@ pub const BALL_STARTING_POINT: Vec3 = vec3(0.0, 4.0, 0.0);
 pub const BALL_STARTING_VELOCITY: Vec3 = vec3(0.0, 10.0, 0.0);
 pub const GAME_TIME: u64 = 120;
 pub const DISPLAY_DESPAWN_TIME: f32 = 5.0;
+pub const PLAYER_MOVEMENT_SPEED: f32 = 10.;
