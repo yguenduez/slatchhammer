@@ -24,7 +24,7 @@ cargo build --release --target wasm32-unknown-unknown
 Then build the gluecode for the web to load the wasm:
 
 ```sh
-wasm-bindgen --out-dir out --target web target/wasm32-unknown-unknown/release/slatchhammer.wasm
+wasm-bindgen --out-dir out --target web target/wasm32-unknown-unknown/release/slatchhammer.wasm --no-typescript
 ```
 
 
