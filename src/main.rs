@@ -5,6 +5,7 @@ mod game_state;
 mod goals;
 mod player;
 mod points;
+mod sprint;
 mod ui;
 
 use arena::ArenaPlugin;
@@ -14,11 +15,13 @@ use bevy::{
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
 use bevy_rapier3d::prelude::*;
+use bevy_vector_shapes::ShapePlugin;
 use camera::CameraPlugin;
 use game_state::GameStatePlugin;
 use goals::GoalPlugin;
 use player::PlayerPlugin;
 use points::PointsPlugin;
+use sprint::StatePlugin;
 use ui::UiPlugin;
 
 fn main() {
@@ -34,6 +37,7 @@ fn main() {
                     ..Default::default()
                 }),
         )
+        .add_plugins(ShapePlugin::default())
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::default(),
             //       Uncomment for physic colliders render debug
@@ -48,6 +52,7 @@ fn main() {
             PointsPlugin,
             GameStatePlugin,
             UiPlugin,
+            StatePlugin,
         ))
         .add_systems(Startup, (spawn_ball, spawn_light))
         .run();
