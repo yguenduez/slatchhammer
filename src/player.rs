@@ -3,6 +3,8 @@ use bevy::{
     asset::Assets,
     ecs::{
         component::Component,
+        entity::Entity,
+        event::EventWriter,
         query::{With, Without},
         system::{Commands, Query, Res, ResMut},
     },
@@ -25,6 +27,7 @@ use bevy_rapier3d::{
 use crate::{
     camera::MainCamera,
     constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT, PLAYER_MOVEMENT_SPEED},
+    sprint::{ApplySprintEvent, ShowBars, SprintState},
 };
 
 #[derive(Component)]
@@ -41,42 +44,75 @@ struct PlayerInput {
 
 fn movement_input(
     input: Res<Input<KeyCode>>,
-    mut query_p1: Query<&mut PlayerInput, (With<Player1>, Without<Player2>)>,
-    mut query_p2: Query<&mut PlayerInput, (With<Player2>, Without<Player1>)>,
+    mut query_p1: Query<
+        (Entity, &mut PlayerInput, &SprintState),
+        (With<Player1>, Without<Player2>),
+    >,
+    mut query_p2: Query<
+        (Entity, &mut PlayerInput, &SprintState),
+        (With<Player2>, Without<Player1>),
+    >,
+    time: Res<Time>,
     camera: Query<&Transform, With<MainCamera>>,
+    mut event_writer: EventWriter<ApplySprintEvent>,
 ) {
     let camera_transform = camera.single();
     let forward = camera_transform.right();
     let rotation = Quat::from_axis_angle(Vec3::Y, forward.y);
+    let frame_time = time.delta_seconds();
 
-    for mut player_input in query_p1.iter_mut() {
-        let (x, z, vel) = dir_and_speed(
-            &input,
-            KeyCode::A,
-            KeyCode::D,
-            KeyCode::W,
-            KeyCode::S,
-            KeyCode::ShiftLeft,
-        );
+    for (entity, mut player_input, stamina) in query_p1.iter_mut() {
+        let (x, z) =
+            wanted_player_direction(&input, KeyCode::A, KeyCode::D, KeyCode::W, KeyCode::S);
+        let mut velocity = PLAYER_MOVEMENT_SPEED;
+        if player_wants_to_sprint(&input, KeyCode::ShiftLeft) {
+            velocity = change_velocity(stamina, frame_time, entity, &mut event_writer);
+        }
         let dir = vec3(x, 0.0, z).normalize_or_zero();
         let dir = rotation * dir;
         player_input.movement = dir;
-        player_input.current_velocity = vel;
+        player_input.current_velocity = velocity;
     }
-    for mut player_input in query_p2.iter_mut() {
-        let (x, z, vel) = dir_and_speed(
+    for (entity, mut player_input, stamina) in query_p2.iter_mut() {
+        let (x, z) = wanted_player_direction(
             &input,
             KeyCode::Left,
             KeyCode::Right,
             KeyCode::Up,
             KeyCode::Down,
-            KeyCode::ShiftRight,
         );
+        let mut velocity = PLAYER_MOVEMENT_SPEED;
+        if player_wants_to_sprint(&input, KeyCode::ShiftRight) {
+            velocity = change_velocity(stamina, frame_time, entity, &mut event_writer);
+        }
         let dir = vec3(x, 0.0, z).normalize_or_zero();
         let dir = rotation * dir;
         player_input.movement = dir;
-        player_input.current_velocity = vel;
+        player_input.current_velocity = velocity;
     }
+}
+
+fn player_wants_to_sprint(input: &Input<KeyCode>, space: KeyCode) -> bool {
+    input.pressed(space)
+}
+
+fn change_velocity(
+    stamina: &SprintState,
+    stamina_change: f32,
+    target_entity: Entity,
+    event_writer: &mut EventWriter<ApplySprintEvent>,
+) -> f32 {
+    let mut vel = PLAYER_MOVEMENT_SPEED;
+    if stamina.is_available() {
+        vel *= 2.0;
+        let ev = ApplySprintEvent {
+            amount: -stamina_change,
+            source: target_entity,
+            target: target_entity,
+        };
+        event_writer.send(ev);
+    }
+    vel
 }
 
 fn apply_movement(
@@ -97,27 +133,17 @@ fn apply_movement(
     }
 }
 
-fn dir_and_speed(
+fn wanted_player_direction(
     input: &Input<KeyCode>,
     left: KeyCode,
     right: KeyCode,
     up: KeyCode,
     down: KeyCode,
-    sprint: KeyCode,
-) -> (f32, f32, f32) {
+) -> (f32, f32) {
     (
         movement_axis(input, left, right),
         movement_axis(input, up, down),
-        adapt_velocity(input, sprint),
     )
-}
-
-fn adapt_velocity(input: &Input<KeyCode>, sprint_button: KeyCode) -> f32 {
-    if input.pressed(sprint_button) {
-        PLAYER_MOVEMENT_SPEED * 2.0
-    } else {
-        PLAYER_MOVEMENT_SPEED
-    }
 }
 
 fn movement_axis(input: &Input<KeyCode>, left: KeyCode, right: KeyCode) -> f32 {
@@ -164,7 +190,9 @@ fn spawn_player(
             material: material_green,
             transform: Transform::from_translation(PLAYER1_STARTING_POINT),
             ..Default::default()
-        });
+        })
+        .insert(SprintState::default())
+        .insert(ShowBars);
     commands
         .spawn((
             Player2,
@@ -186,7 +214,9 @@ fn spawn_player(
             material: material_orange,
             transform: Transform::from_translation(PLAYER2_STARTING_POINT),
             ..Default::default()
-        });
+        })
+        .insert(SprintState::default())
+        .insert(ShowBars);
 }
 
 pub struct PlayerPlugin;
