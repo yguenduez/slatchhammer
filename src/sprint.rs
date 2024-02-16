@@ -75,6 +75,10 @@ fn display_sprint(
 }
 
 impl SprintState {
+    pub fn reset(&mut self) {
+        self.duration = SPRINT_DURATION;
+    }
+
     pub fn resupply(&mut self, value: f32) {
         if self.duration + value > SPRINT_DURATION {
             self.duration = SPRINT_DURATION;

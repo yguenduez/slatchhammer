@@ -21,6 +21,7 @@ use crate::{
     goals::GoalEvent,
     player::{Player1, Player2},
     points::Points,
+    sprint::SprintState,
     Ball,
 };
 
@@ -62,8 +63,14 @@ fn reset_game(
     mut q_time: Query<&mut GameTime>,
     mut q_points: Query<&mut Points>,
     mut game_end_event: EventReader<GameEndEvent>,
-    mut q_p1: Query<&mut Transform, (With<Player1>, Without<Player2>, Without<Ball>)>,
-    mut q_p2: Query<&mut Transform, (With<Player2>, Without<Player1>, Without<Ball>)>,
+    mut q_p1: Query<
+        (&mut Transform, &mut SprintState),
+        (With<Player1>, Without<Player2>, Without<Ball>),
+    >,
+    mut q_p2: Query<
+        (&mut Transform, &mut SprintState),
+        (With<Player2>, Without<Player1>, Without<Ball>),
+    >,
     mut q_ball: Query<
         (&mut Transform, &mut Velocity),
         (With<Ball>, Without<Player2>, Without<Player1>),
@@ -77,10 +84,12 @@ fn reset_game(
         let mut points = q_points.single_mut();
         points.player_1 = 0;
         points.player_2 = 0;
-        let mut t_p1 = q_p1.single_mut();
+        let (mut t_p1, mut sprint_p1) = q_p1.single_mut();
         t_p1.translation = PLAYER1_STARTING_POINT;
-        let mut t_p2 = q_p2.single_mut();
+        sprint_p1.reset();
+        let (mut t_p2, mut sprint_p2) = q_p2.single_mut();
         t_p2.translation = PLAYER2_STARTING_POINT;
+        sprint_p2.reset();
         let (mut t, mut v) = q_ball.single_mut();
         t.translation = BALL_STARTING_POINT;
         v.linvel = BALL_STARTING_VELOCITY;
