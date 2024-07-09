@@ -1,6 +1,6 @@
 use std::f32::consts::FRAC_PI_2;
 
-use crate::colors::{ORANGE, RED};
+use crate::colors::{BLACK, ORANGE, RED, WHITE};
 use bevy::prelude::*;
 use bevy::{
     app::{Plugin, Startup},
@@ -79,7 +79,7 @@ fn build_ground(
     commands.spawn(PbrBundle {
         // mesh: meshes.add(Plane3d::from_size(100.0).into()),
         mesh: meshes.add(Plane3d::new(*Dir3::Y, vec2(30.0, 15.0))),
-        material: materials.add(ORANGE),
+        material: materials.add(WHITE),
         ..Default::default()
     });
 }
