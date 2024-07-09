@@ -1,19 +1,12 @@
-use bevy::color::Color;
 use bevy::{
     app::{Plugin, Update},
     ecs::{
         component::Component,
         entity::Entity,
         event::{Event, EventReader},
-        query::With,
         system::Query,
     },
-    transform::components::{GlobalTransform, Transform},
 };
-use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
-
-use crate::camera::MainCamera;
-use crate::colors::{BLACK, RED};
 
 #[derive(Component)]
 pub struct SprintState {
@@ -30,50 +23,8 @@ impl Default for SprintState {
     }
 }
 
-fn display_bar(
-    painter: &mut ShapePainter<'_, '_>,
-    transform: &GlobalTransform,
-    camera_tr: &Transform,
-    value: i32,
-    max_value: i32,
-    color: Color,
-) {
-    const HEALTHBAR_LENGTH: f32 = 1.5;
-
-    painter.color = BLACK;
-    let bar_pos = transform.translation() + *transform.up();
-    let bar_left = bar_pos - camera_tr.right() * HEALTHBAR_LENGTH / 2.0;
-    painter.line(bar_left, bar_left + camera_tr.right() * HEALTHBAR_LENGTH);
-
-    let ratio = value as f32 / max_value as f32;
-
-    painter.color = color;
-    painter.line(
-        bar_left,
-        bar_left + camera_tr.right() * HEALTHBAR_LENGTH * ratio,
-    );
-}
-
 #[derive(Component)]
 pub struct ShowBars;
-
-fn display_sprint(
-    mut painter: ShapePainter,
-    query: Query<(&SprintState, &GlobalTransform), With<ShowBars>>,
-    q_camera: Query<&Transform, With<MainCamera>>,
-) {
-    let camera_tr = q_camera.single();
-    for (state, transform) in &query {
-        display_bar(
-            &mut painter,
-            transform,
-            camera_tr,
-            state.duration as i32,
-            SPRINT_DURATION as i32,
-            RED,
-        );
-    }
-}
 
 impl SprintState {
     pub fn reset(&mut self) {
@@ -126,7 +77,7 @@ pub struct StatePlugin;
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_event::<ApplySprintEvent>()
-            .add_systems(Update, (display_sprint, apply_sprint_events));
+            .add_systems(Update, apply_sprint_events);
     }
 }
 
