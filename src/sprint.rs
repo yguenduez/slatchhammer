@@ -1,3 +1,4 @@
+use bevy::color::Color;
 use bevy::{
     app::{Plugin, Update},
     ecs::{
@@ -7,12 +8,12 @@ use bevy::{
         query::With,
         system::Query,
     },
-    render::color::Color,
     transform::components::{GlobalTransform, Transform},
 };
 use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
 
 use crate::camera::MainCamera;
+use crate::colors::{BLACK, RED};
 
 #[derive(Component)]
 pub struct SprintState {
@@ -39,8 +40,8 @@ fn display_bar(
 ) {
     const HEALTHBAR_LENGTH: f32 = 1.5;
 
-    painter.color = Color::GRAY;
-    let bar_pos = transform.translation() + transform.up();
+    painter.color = BLACK;
+    let bar_pos = transform.translation() + *transform.up();
     let bar_left = bar_pos - camera_tr.right() * HEALTHBAR_LENGTH / 2.0;
     painter.line(bar_left, bar_left + camera_tr.right() * HEALTHBAR_LENGTH);
 
@@ -69,7 +70,7 @@ fn display_sprint(
             camera_tr,
             state.duration as i32,
             SPRINT_DURATION as i32,
-            Color::RED,
+            RED,
         );
     }
 }

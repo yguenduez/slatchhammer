@@ -1,5 +1,7 @@
 use std::f32::consts::FRAC_PI_2;
 
+use crate::colors::{GREEN, ORANGE};
+use bevy::prelude::Cuboid;
 use bevy::{
     app::{Plugin, Startup, Update},
     asset::Assets,
@@ -10,10 +12,7 @@ use bevy::{
     },
     math::{vec3, Quat},
     pbr::{MaterialMeshBundle, NotShadowCaster, PbrBundle, StandardMaterial},
-    render::{
-        color::Color,
-        mesh::{shape, Mesh},
-    },
+    render::mesh::Mesh,
     transform::components::Transform,
 };
 use bevy_rapier3d::{
@@ -35,14 +34,14 @@ fn build_goal_meshes(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let mesh = meshes.add(shape::Box::new(GOAL_SIZE, GOAL_HEIGHT * 2.0, GOAL_THICKNESS).into());
+    let mesh = meshes.add(Cuboid::new(GOAL_SIZE, GOAL_HEIGHT * 2.0, GOAL_THICKNESS));
     let material_green = materials.add(StandardMaterial {
-        base_color: Color::GREEN,
+        base_color: GREEN,
         ..Default::default()
     });
 
     let material_orange = materials.add(StandardMaterial {
-        base_color: Color::ORANGE,
+        base_color: ORANGE,
         ..Default::default()
     });
     let transforms_with_mesh = [

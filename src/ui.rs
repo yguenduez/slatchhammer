@@ -9,7 +9,6 @@ use bevy::{
     },
     hierarchy::{BuildChildren, DespawnRecursiveExt},
     prelude::{Deref, DerefMut},
-    render::color::Color,
     text::{Text, TextSection, TextStyle},
     time::{Time, Timer, TimerMode},
     ui::{
@@ -18,6 +17,7 @@ use bevy::{
     },
 };
 
+use crate::colors::{BLACK, BLUE, GREEN, ORANGE, WHITE};
 use crate::{
     constants::DISPLAY_DESPAWN_TIME,
     game_state::{EndState, GameEndEvent, GameTime},
@@ -44,7 +44,7 @@ fn setup_time_ui(mut commands: Commands) {
             TimeDisplayRoot,
             NodeBundle {
                 // give it a dark background for readability
-                background_color: BackgroundColor(Color::BLACK.with_a(0.5)),
+                background_color: BackgroundColor(BLUE),
                 // make it "always on top" by setting the Z index to maximum
                 // we want it to be displayed over all other UI
                 z_index: ZIndex::Global(i32::MAX),
@@ -69,7 +69,7 @@ fn setup_time_ui(mut commands: Commands) {
 
     let color = TextStyle {
         font_size: 16.,
-        color: Color::GREEN,
+        color: GREEN,
         ..Default::default()
     };
 
@@ -112,7 +112,7 @@ fn spawn_game_end_notification(
         println!("I GOT SPAWNED!");
         let color = TextStyle {
             font_size: 32.,
-            color: Color::WHITE,
+            color: WHITE,
             ..Default::default()
         };
 
@@ -128,7 +128,7 @@ fn spawn_game_end_notification(
                 MainUi,
                 DisplayTime(Timer::from_seconds(DISPLAY_DESPAWN_TIME, TimerMode::Once)),
                 NodeBundle {
-                    background_color: BackgroundColor(Color::BLACK.with_a(0.8)),
+                    background_color: BackgroundColor(BLACK),
                     z_index: ZIndex::Global(i32::MAX),
                     style: Style {
                         position_type: PositionType::Absolute,
@@ -180,7 +180,7 @@ fn setup_points_ui(mut commands: Commands) {
             PointDisplayRoot,
             NodeBundle {
                 // give it a dark background for readability
-                background_color: BackgroundColor(Color::BLACK.with_a(0.5)),
+                background_color: BackgroundColor(BLACK),
                 // make it "always on top" by setting the Z index to maximum
                 // we want it to be displayed over all other UI
                 z_index: ZIndex::Global(i32::MAX),
@@ -203,7 +203,7 @@ fn setup_points_ui(mut commands: Commands) {
         ))
         .id();
 
-    let colors: Vec<TextStyle> = [Color::GREEN, Color::WHITE, Color::ORANGE]
+    let colors: Vec<TextStyle> = [GREEN, WHITE, ORANGE]
         .iter()
         .map(|c| TextStyle {
             font_size: 16.,

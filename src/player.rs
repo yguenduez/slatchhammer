@@ -1,3 +1,4 @@
+use bevy::input::ButtonInput;
 use bevy::{
     app::{Plugin, Startup, Update},
     asset::Assets,
@@ -8,22 +9,20 @@ use bevy::{
         query::{With, Without},
         system::{Commands, Query, Res, ResMut},
     },
-    input::{keyboard::KeyCode, Input},
+    input::keyboard::KeyCode,
     math::{vec3, Quat, Vec3},
     pbr::{PbrBundle, StandardMaterial},
-    render::{
-        color::Color,
-        mesh::{shape, Mesh},
-    },
+    prelude::*,
+    render::mesh::Mesh,
     time::Time,
     transform::components::Transform,
 };
-
 use bevy_rapier3d::{
     dynamics::{ExternalForce, GravityScale, LockedAxes, RigidBody, Velocity},
     geometry::Collider,
 };
 
+use crate::colors::{GREEN, ORANGE};
 use crate::{
     camera::MainCamera,
     constants::{PLAYER1_STARTING_POINT, PLAYER2_STARTING_POINT, PLAYER_MOVEMENT_SPEED},
@@ -43,7 +42,7 @@ struct PlayerInput {
 }
 
 fn movement_input(
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut query_p1: Query<
         (Entity, &mut PlayerInput, &SprintState),
         (With<Player1>, Without<Player2>),
@@ -62,8 +61,13 @@ fn movement_input(
     let frame_time = time.delta_seconds();
 
     for (entity, mut player_input, stamina) in query_p1.iter_mut() {
-        let (x, z) =
-            wanted_player_direction(&input, KeyCode::A, KeyCode::D, KeyCode::W, KeyCode::S);
+        let (x, z) = wanted_player_direction(
+            &input,
+            KeyCode::KeyA,
+            KeyCode::KeyD,
+            KeyCode::KeyW,
+            KeyCode::KeyS,
+        );
         let mut velocity = PLAYER_MOVEMENT_SPEED;
         if player_wants_to_sprint(&input, KeyCode::ShiftLeft) {
             velocity = change_velocity(stamina, frame_time, entity, &mut event_writer);
@@ -76,10 +80,10 @@ fn movement_input(
     for (entity, mut player_input, stamina) in query_p2.iter_mut() {
         let (x, z) = wanted_player_direction(
             &input,
-            KeyCode::Left,
-            KeyCode::Right,
-            KeyCode::Up,
-            KeyCode::Down,
+            KeyCode::ArrowLeft,
+            KeyCode::ArrowRight,
+            KeyCode::ArrowUp,
+            KeyCode::ArrowDown,
         );
         let mut velocity = PLAYER_MOVEMENT_SPEED;
         if player_wants_to_sprint(&input, KeyCode::ShiftRight) {
@@ -92,7 +96,7 @@ fn movement_input(
     }
 }
 
-fn player_wants_to_sprint(input: &Input<KeyCode>, space: KeyCode) -> bool {
+fn player_wants_to_sprint(input: &ButtonInput<KeyCode>, space: KeyCode) -> bool {
     input.pressed(space)
 }
 
@@ -134,7 +138,7 @@ fn apply_movement(
 }
 
 fn wanted_player_direction(
-    input: &Input<KeyCode>,
+    input: &ButtonInput<KeyCode>,
     left: KeyCode,
     right: KeyCode,
     up: KeyCode,
@@ -146,7 +150,7 @@ fn wanted_player_direction(
     )
 }
 
-fn movement_axis(input: &Input<KeyCode>, left: KeyCode, right: KeyCode) -> f32 {
+fn movement_axis(input: &ButtonInput<KeyCode>, left: KeyCode, right: KeyCode) -> f32 {
     match (input.pressed(left), input.pressed(right)) {
         (true, false) => -1.0,
         (false, true) => 1.0,
@@ -159,13 +163,13 @@ fn spawn_player(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let mesh = meshes.add(shape::Cylinder::default().into());
+    let mesh = meshes.add(Cylinder::default());
     let material_green = materials.add(StandardMaterial {
-        base_color: Color::GREEN,
+        base_color: GREEN,
         ..Default::default()
     });
     let material_orange = materials.add(StandardMaterial {
-        base_color: Color::ORANGE,
+        base_color: ORANGE,
         ..Default::default()
     });
 

@@ -1,5 +1,6 @@
 mod arena;
 mod camera;
+mod colors;
 mod constants;
 mod game_state;
 mod goals;
@@ -9,6 +10,7 @@ mod sprint;
 mod ui;
 
 use arena::ArenaPlugin;
+use bevy::render::render_asset::RenderAssetUsages;
 use bevy::{
     math::vec3,
     prelude::*,
@@ -94,9 +96,9 @@ fn spawn_ball(
         base_color_texture: Some(images.add(uv_debug_texture())),
         ..default()
     });
-    let mut shape = shape::UVSphere::default();
+    let mut shape = Sphere::default();
     shape.radius = 0.5;
-    let mesh = meshes.add(shape.into());
+    let mesh = meshes.add(shape);
     commands
         .spawn(RigidBody::Dynamic)
         .insert(Ball)
@@ -136,5 +138,6 @@ fn uv_debug_texture() -> Image {
         TextureDimension::D2,
         &texture_data,
         TextureFormat::Rgba8UnormSrgb,
+        RenderAssetUsages::default(),
     )
 }

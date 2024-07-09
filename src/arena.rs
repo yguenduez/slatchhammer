@@ -1,16 +1,15 @@
 use std::f32::consts::FRAC_PI_2;
 
+use crate::colors::{ORANGE, RED};
+use bevy::prelude::*;
 use bevy::{
     app::{Plugin, Startup},
     asset::Assets,
     ecs::system::{Commands, ResMut},
     math::{vec2, vec3, Quat},
     pbr::{MaterialMeshBundle, NotShadowCaster, PbrBundle, StandardMaterial},
-    render::{
-        color::Color,
-        mesh::{shape, Mesh},
-    },
-    transform::{components::Transform, TransformBundle},
+    render::mesh::Mesh,
+    transform::components::Transform,
 };
 use bevy_rapier3d::{
     dynamics::RigidBody,
@@ -26,11 +25,10 @@ fn build_arena_walls(
 ) {
     let wall_height = 4.0;
 
-    let mesh = meshes.add(shape::Quad::new(vec2(MAP_SIZE_HALF * 2.0, wall_height * 2.0)).into());
-    let mesh_long =
-        meshes.add(shape::Quad::new(vec2(MAP_SIZE_HALF * 4.0, wall_height * 2.0)).into());
+    let mesh = meshes.add(Rectangle::new(MAP_SIZE_HALF * 2.0, wall_height * 2.0));
+    let mesh_long = meshes.add(Rectangle::new(MAP_SIZE_HALF * 4.0, wall_height * 2.0));
     let material = materials.add(StandardMaterial {
-        base_color: Color::RED,
+        base_color: RED,
         ..Default::default()
     });
 
@@ -79,8 +77,9 @@ fn build_ground(
         .insert(TransformBundle::from(Transform::from_xyz(0.0, -0.1, 0.0)));
 
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(100.0).into()),
-        material: materials.add(Color::SILVER.into()),
+        // mesh: meshes.add(Plane3d::from_size(100.0).into()),
+        mesh: meshes.add(Plane3d::new(*Dir3::Y, vec2(30.0, 15.0))),
+        material: materials.add(ORANGE),
         ..Default::default()
     });
 }
