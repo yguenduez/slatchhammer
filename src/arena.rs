@@ -1,6 +1,6 @@
 use std::f32::consts::FRAC_PI_2;
 
-use crate::colors::{BLACK, ORANGE, RED, WHITE};
+use crate::colors::{RED, WHITE};
 use bevy::prelude::*;
 use bevy::{
     app::{Plugin, Startup},

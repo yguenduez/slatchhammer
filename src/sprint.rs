@@ -103,7 +103,6 @@ impl SprintState {
 #[derive(Event)]
 pub struct ApplySprintEvent {
     pub amount: f32,
-    pub source: Entity,
     pub target: Entity,
 }
 

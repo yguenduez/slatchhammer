@@ -98,9 +98,6 @@ fn setup_time_ui(mut commands: Commands) {
 #[derive(Component)]
 struct MainUi;
 
-#[derive(Component)]
-struct GameEndText;
-
 #[derive(Component, Deref, DerefMut)]
 struct DisplayTime(pub Timer);
 

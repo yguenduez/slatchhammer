@@ -111,7 +111,6 @@ fn change_velocity(
         vel *= 2.0;
         let ev = ApplySprintEvent {
             amount: -stamina_change,
-            source: target_entity,
             target: target_entity,
         };
         event_writer.send(ev);

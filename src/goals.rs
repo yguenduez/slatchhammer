@@ -21,9 +21,6 @@ use bevy_rapier3d::{
     pipeline::CollisionEvent,
 };
 
-#[derive(Component)]
-struct Goal;
-
 const MAP_SIZE_HALF: f32 = 15.0;
 const GOAL_SIZE: f32 = 10.0;
 const GOAL_THICKNESS: f32 = 1.0;

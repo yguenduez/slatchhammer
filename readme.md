@@ -1,6 +1,6 @@
 # Slatchhammer
 
-Idea: A webassembly 1v1 football game on one machine. 
+Idea: A webassembly 1v1 football game on one machine.
 
 ## Play it
 
@@ -27,7 +27,6 @@ Then build the gluecode for the web to load the wasm:
 wasm-bindgen --out-dir out --target web target/wasm32-unknown-unknown/release/slatchhammer.wasm --no-typescript
 ```
 
-
 Then load the `init()` function from the gluecode
 
 ```
@@ -47,6 +46,7 @@ cargo run (--release)
 ### How to continue from here
 
 Todo (MVP):
+
 - √ Arena: Bounderies, Floor
 - √ To WebAssembly to play in the web with e.g. vercel
 - √ Goals: to achieve points
@@ -54,14 +54,15 @@ Todo (MVP):
 - √ Reset After goal - initial position of players
 - √ Add a timer for one game
 - √ Win game after time is up (Timer)
+- √ Sprint, which depletes, when using
 
 Further Ideas:
+
 - Ingame Menu - to manually start a match
 - Choose character with different properties (mass,velocity,restitution,...)
-- Sprint, which depletes, when using
 - Items like:
-  - Power-ups
-  - Items to handicap oponent
+    - Power-ups
+    - Items to handicap oponent
 
 - Ranking System:
 - Online 1v1
