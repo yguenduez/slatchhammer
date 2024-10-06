@@ -30,7 +30,7 @@ wasm-bindgen --out-dir out --target web target/wasm32-unknown-unknown/release/sl
 Then load the `init()` function from the gluecode
 
 ```
- 
+
 <script type="module">
     import init from './out/slatchhammer.js'
     init()
@@ -47,22 +47,23 @@ cargo run (--release)
 
 Todo (MVP):
 
-- √ Arena: Bounderies, Floor
-- √ To WebAssembly to play in the web with e.g. vercel
-- √ Goals: to achieve points
-- √ Points
-- √ Reset After goal - initial position of players
-- √ Add a timer for one game
-- √ Win game after time is up (Timer)
-- √ Sprint, which depletes, when using
+- [x] Arena: Bounderies, Floor
+- [x] To WebAssembly to play in the web with e.g. vercel
+- [x] Goals: to achieve points
+- [x] Points
+- [x] Reset After goal - initial position of players
+- [x] Add a timer for one game
+- [x] Win game after time is up (Timer)
+- [x] Sprint, which depletes, when using
+- [ ] Ingame Menu - to manually start a match
 
 Further Ideas:
 
-- Ingame Menu - to manually start a match
 - Choose character with different properties (mass,velocity,restitution,...)
 - Items like:
-    - Power-ups
-    - Items to handicap oponent
+
+  - Power-ups
+  - Items to handicap oponent
 
 - Ranking System:
 - Online 1v1
