@@ -17,7 +17,7 @@ use bevy::{
     },
 };
 
-use crate::colors::{BLACK, BLUE, GREEN, ORANGE, WHITE};
+use crate::colors::{BLACK, GREEN, ORANGE, WHITE};
 use crate::{
     constants::DISPLAY_DESPAWN_TIME,
     game_state::{EndState, GameEndEvent, GameTime},
@@ -43,8 +43,7 @@ fn setup_time_ui(mut commands: Commands) {
         .spawn((
             TimeDisplayRoot,
             NodeBundle {
-                // give it a dark background for readability
-                background_color: BackgroundColor(BLUE),
+                background_color: BackgroundColor(BLACK),
                 // make it "always on top" by setting the Z index to maximum
                 // we want it to be displayed over all other UI
                 z_index: ZIndex::Global(i32::MAX),

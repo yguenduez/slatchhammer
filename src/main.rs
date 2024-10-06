@@ -71,7 +71,7 @@ fn spawn_light(mut commands: Commands) {
     light_poses.into_iter().for_each(|t| {
         commands.spawn(PointLightBundle {
             point_light: PointLight {
-                intensity: 9000.0,
+                intensity: 10000000.0,
                 range: 70.,
                 shadows_enabled: true,
                 ..default()
