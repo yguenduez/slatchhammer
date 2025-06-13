@@ -10,7 +10,7 @@ use bevy::{
 use crate::goals::{GoalEvent, PlayerType};
 
 fn update_player_points(mut q_points: Query<&mut Points>, mut goal_events: EventReader<GoalEvent>) {
-    let mut points = q_points.single_mut();
+    let mut points = q_points.single_mut().unwrap();
     for ev in goal_events.read() {
         match ev.player {
             PlayerType::First => points.player_1 += ev.amount,

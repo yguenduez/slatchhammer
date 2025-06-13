@@ -7,7 +7,7 @@ mod goals;
 mod player;
 mod points;
 mod sprint;
-mod ui;
+//mod ui;
 
 use arena::ArenaPlugin;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -24,7 +24,7 @@ use goals::GoalPlugin;
 use player::PlayerPlugin;
 use points::PointsPlugin;
 use sprint::StatePlugin;
-use ui::UiPlugin;
+//use ui::UiPlugin;
 
 fn main() {
     App::new()
@@ -53,7 +53,7 @@ fn main() {
             GoalPlugin,
             PointsPlugin,
             GameStatePlugin,
-            UiPlugin,
+            //UiPlugin,
             StatePlugin,
         ))
         .add_systems(Startup, (spawn_ball, spawn_light))
@@ -69,16 +69,15 @@ fn spawn_light(mut commands: Commands) {
     ];
 
     light_poses.into_iter().for_each(|t| {
-        commands.spawn(PointLightBundle {
-            point_light: PointLight {
+        commands.spawn((
+            PointLight {
                 intensity: 10000000.0,
                 range: 70.,
                 shadows_enabled: true,
                 ..default()
             },
-            transform: Transform::from_translation(t),
-            ..default()
-        });
+            Transform::from_translation(t),
+        ));
     })
 }
 
@@ -106,12 +105,11 @@ fn spawn_ball(
         .insert(Velocity::default())
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Restitution::coefficient(1.5))
-        .insert(PbrBundle {
-            mesh,
-            material: debug_material,
-            transform: Transform::from_xyz(0.0, 4.0, 0.0),
-            ..Default::default()
-        });
+        .insert((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(debug_material),
+            Transform::from_xyz(0.0, 4.0, 0.0),
+        ));
 }
 
 fn uv_debug_texture() -> Image {

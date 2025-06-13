@@ -16,7 +16,7 @@ use bevy::{
         AlignItems, BackgroundColor, JustifyContent, PositionType, Style, UiRect, Val, ZIndex,
     },
 };
-
+use bevy::prelude::{Node, Text};
 use crate::colors::{BLACK, GREEN, ORANGE, WHITE};
 use crate::{
     constants::DISPLAY_DESPAWN_TIME,
@@ -42,7 +42,7 @@ fn setup_time_ui(mut commands: Commands) {
     let root = commands
         .spawn((
             TimeDisplayRoot,
-            NodeBundle {
+             Node{
                 background_color: BackgroundColor(BLACK),
                 // make it "always on top" by setting the Z index to maximum
                 // we want it to be displayed over all other UI
@@ -238,7 +238,7 @@ fn point_text_update_system(
     q_points: Query<&Points>,
     mut query: Query<&mut Text, With<PointsText>>,
 ) {
-    let points = q_points.single();
+    let points = q_points.single().unwrap();
     for mut text in &mut query {
         text.sections[0].value = format!("{}", points.player_1);
         text.sections[2].value = format!("{}", points.player_2);

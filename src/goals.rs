@@ -1,7 +1,7 @@
 use std::f32::consts::FRAC_PI_2;
 
 use crate::colors::{GREEN, ORANGE};
-use bevy::prelude::Cuboid;
+use bevy::prelude::{Cuboid, Mesh3d};
 use bevy::{
     app::{Plugin, Startup, Update},
     asset::Assets,
@@ -11,10 +11,11 @@ use bevy::{
         system::{Commands, Query, ResMut},
     },
     math::{vec3, Quat},
-    pbr::{MaterialMeshBundle, NotShadowCaster, PbrBundle, StandardMaterial},
+    pbr::{NotShadowCaster, StandardMaterial},
     render::mesh::Mesh,
     transform::components::Transform,
 };
+use bevy::pbr::MeshMaterial3d;
 use bevy_rapier3d::{
     dynamics::RigidBody,
     geometry::{Collider, ColliderMassProperties},
@@ -67,12 +68,9 @@ fn build_goal_meshes(
     for (t, m, color) in transforms_with_mesh {
         commands.spawn((
             NotShadowCaster,
-            MaterialMeshBundle {
-                mesh: m,
-                transform: t,
-                material: color,
-                ..Default::default()
-            },
+            Transform::from(t),
+            Mesh3d(m.clone()),
+            MeshMaterial3d(color.clone()),
         ));
     }
 }
@@ -103,10 +101,7 @@ fn build_goal_colliders(mut commands: Commands) {
             c,
             RigidBody::Fixed,
             ColliderMassProperties::Mass(100.0),
-            PbrBundle {
-                transform: t,
-                ..Default::default()
-            },
+            Transform::from(t),
             goal_type,
         ));
     }

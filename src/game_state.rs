@@ -30,7 +30,7 @@ fn reset_p1_after_goal(
     mut q: Query<&mut Transform, With<Player1>>,
 ) {
     for _ in goal_event.read() {
-        let mut t = q.single_mut();
+        let mut t = q.single_mut().unwrap();
         t.translation = PLAYER1_STARTING_POINT;
     }
 }
@@ -39,7 +39,7 @@ fn reset_p2_after_goal(
     mut q: Query<&mut Transform, With<Player2>>,
 ) {
     for _ in goal_event.read() {
-        let mut t = q.single_mut();
+        let mut t = q.single_mut().unwrap();
         t.translation = PLAYER2_STARTING_POINT;
     }
 }
@@ -48,7 +48,7 @@ fn reset_ball_after_goal(
     mut q: Query<(&mut Transform, &mut Velocity), With<Ball>>,
 ) {
     for _ in goal_event.read() {
-        let (mut t, mut v) = q.single_mut();
+        let (mut t, mut v) = q.single_mut().unwrap();
         t.translation = BALL_STARTING_POINT;
         v.linvel = BALL_STARTING_VELOCITY;
     }
@@ -81,16 +81,16 @@ fn reset_game(
             timer.time.reset();
         }
 
-        let mut points = q_points.single_mut();
+        let mut points = q_points.single_mut().unwrap();
         points.player_1 = 0;
         points.player_2 = 0;
-        let (mut t_p1, mut sprint_p1) = q_p1.single_mut();
+        let (mut t_p1, mut sprint_p1) = q_p1.single_mut().unwrap();
         t_p1.translation = PLAYER1_STARTING_POINT;
         sprint_p1.reset();
-        let (mut t_p2, mut sprint_p2) = q_p2.single_mut();
+        let (mut t_p2, mut sprint_p2) = q_p2.single_mut().unwrap();
         t_p2.translation = PLAYER2_STARTING_POINT;
         sprint_p2.reset();
-        let (mut t, mut v) = q_ball.single_mut();
+        let (mut t, mut v) = q_ball.single_mut().unwrap();
         t.translation = BALL_STARTING_POINT;
         v.linvel = BALL_STARTING_VELOCITY;
     }
@@ -107,7 +107,7 @@ impl GameTime {
 }
 
 fn update_game_timer(time: Res<Time>, mut q_time: Query<&mut GameTime>) {
-    if let Ok(mut timer) = q_time.get_single_mut() {
+    if let Ok(mut timer) = q_time.single_mut() {
         timer.time.tick(time.delta());
     }
 }
@@ -134,9 +134,9 @@ fn check_game_end(
     q_points: Query<&Points>,
     mut event_writer: EventWriter<GameEndEvent>,
 ) {
-    let timer = q_game_time.single();
+    let timer = q_game_time.single().unwrap();
     if timer.just_finished() {
-        let points = q_points.single();
+        let points = q_points.single().unwrap();
         let end_state = {
             if points.player_1 > points.player_2 {
                 EndState::Player1Won

@@ -1,20 +1,18 @@
 use bevy::{
     app::{Plugin, Startup},
-    core_pipeline::core_3d::Camera3dBundle,
     ecs::{component::Component, system::Commands},
     math::Vec3,
     transform::components::Transform,
 };
+use bevy::prelude::Camera3d;
 
 #[derive(Component)]
 pub struct MainCamera;
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 50.0, 35.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
-        },
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 50.0, 35.0).looking_at(Vec3::ZERO, Vec3::Y),
         MainCamera,
     ));
 }

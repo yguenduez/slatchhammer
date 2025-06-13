@@ -11,7 +11,7 @@ use bevy::{
     },
     input::keyboard::KeyCode,
     math::{vec3, Quat, Vec3},
-    pbr::{PbrBundle, StandardMaterial},
+    pbr::StandardMaterial,
     prelude::*,
     render::mesh::Mesh,
     time::Time,
@@ -55,10 +55,10 @@ fn movement_input(
     camera: Query<&Transform, With<MainCamera>>,
     mut event_writer: EventWriter<ApplySprintEvent>,
 ) {
-    let camera_transform = camera.single();
+    let camera_transform = camera.single().unwrap();
     let forward = camera_transform.right();
     let rotation = Quat::from_axis_angle(Vec3::Y, forward.y);
-    let frame_time = time.delta_seconds();
+    let frame_time = time.delta_secs();
 
     for (entity, mut player_input, stamina) in query_p1.iter_mut() {
         let (x, z) = wanted_player_direction(
@@ -126,11 +126,7 @@ fn apply_movement(
         let norm_input = input.movement.normalize_or_zero();
 
         let desired_velocity = norm_input * input.current_velocity;
-        velocity.linvel = Vec3::lerp(
-            velocity.linvel,
-            desired_velocity,
-            time.delta_seconds() * 10.0,
-        );
+        velocity.linvel = Vec3::lerp(velocity.linvel, desired_velocity, time.delta_secs() * 10.0);
 
         transform.rotation = Quat::from_rotation_y(f32::atan2(norm_input.x, norm_input.z));
     }
@@ -188,12 +184,11 @@ fn spawn_player(
                 | LockedAxes::ROTATION_LOCKED_Z
                 | LockedAxes::ROTATION_LOCKED_Y,
         ))
-        .insert(PbrBundle {
-            mesh: mesh.clone(),
-            material: material_green,
-            transform: Transform::from_translation(PLAYER1_STARTING_POINT),
-            ..Default::default()
-        })
+        .insert((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(material_green),
+            Transform::from_translation(PLAYER1_STARTING_POINT),
+        ))
         .insert(SprintState::default())
         .insert(ShowBars);
     commands
@@ -212,12 +207,11 @@ fn spawn_player(
                 | LockedAxes::ROTATION_LOCKED_Z
                 | LockedAxes::ROTATION_LOCKED_Y,
         ))
-        .insert(PbrBundle {
-            mesh: mesh.clone(),
-            material: material_orange,
-            transform: Transform::from_translation(PLAYER2_STARTING_POINT),
-            ..Default::default()
-        })
+        .insert((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(material_orange),
+            Transform::from_translation(PLAYER2_STARTING_POINT),
+        ))
         .insert(SprintState::default())
         .insert(ShowBars);
 }
