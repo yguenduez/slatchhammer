@@ -7,7 +7,7 @@ mod goals;
 mod player;
 mod points;
 mod sprint;
-//mod ui;
+mod ui;
 
 use arena::ArenaPlugin;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -24,7 +24,7 @@ use goals::GoalPlugin;
 use player::PlayerPlugin;
 use points::PointsPlugin;
 use sprint::StatePlugin;
-//use ui::UiPlugin;
+use ui::UiPlugin;
 
 fn main() {
     App::new()
@@ -53,7 +53,7 @@ fn main() {
             GoalPlugin,
             PointsPlugin,
             GameStatePlugin,
-            //UiPlugin,
+            UiPlugin,
             StatePlugin,
         ))
         .add_systems(Startup, (spawn_ball, spawn_light))
