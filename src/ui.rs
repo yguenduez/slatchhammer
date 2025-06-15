@@ -1,10 +1,10 @@
-use crate::colors::{GREEN, WHITE};
+use crate::colors::{GREEN, ORANGE, WHITE};
 use crate::{
     constants::DISPLAY_DESPAWN_TIME,
     game_state::{EndState, GameEndEvent, GameTime},
     points::Points,
 };
-use bevy::prelude::{Node, Text, TextColor, TextFont};
+use bevy::prelude::{Node, Text, TextColor, TextFont, Without};
 use bevy::{
     app::{Plugin, Startup, Update},
     ecs::{
@@ -25,7 +25,10 @@ struct PointDisplayRoot;
 
 /// Marker to find the text entity so we can update it
 #[derive(Component)]
-struct PointsText;
+struct PointsText1;
+
+#[derive(Component)]
+struct PointsText2;
 
 #[derive(Component)]
 struct TimeText;
@@ -120,41 +123,53 @@ fn despawn_entities_with_display_time(
 }
 
 fn setup_points_ui(mut commands: Commands) {
-    // create our UI root node
-    // this is the wrapper/container for the text
     commands.spawn((
         PointDisplayRoot,
         Node {
             position_type: PositionType::Absolute,
-            // position it at the top-right corner
-            // 1% away from the top window edge
-            right: Val::Percent(45.),
-            top: Val::Percent(5.),
-            // set bottom/left to Auto, so it can be
-            // automatically sized depending on the text
-            bottom: Val::Auto,
-            left: Val::Auto,
-            // give it some padding for readability
+            left: Val::Percent(45.),
+            bottom: Val::Percent(5.0),
             padding: UiRect::all(Val::Px(4.0)),
             ..Default::default()
         },
-        PointsText,
-        Text("Player 1: Player 2:".into()),
+        PointsText1,
+        Text("Player 1".into()),
         TextFont {
-            font_size: 16.0,
+            font_size: 32.0,
             ..Default::default()
         },
-        TextColor(WHITE),
+        TextColor(GREEN),
+    ));
+    commands.spawn((
+        PointDisplayRoot,
+        Node {
+            position_type: PositionType::Absolute,
+            right: Val::Percent(45.),
+            bottom: Val::Percent(5.0),
+            padding: UiRect::all(Val::Px(4.0)),
+            ..Default::default()
+        },
+        PointsText2,
+        Text("Player 2".into()),
+        TextFont {
+            font_size: 32.0,
+            ..Default::default()
+        },
+        TextColor(ORANGE),
     ));
 }
 
 fn point_text_update_system(
     q_points: Query<&Points>,
-    mut query: Query<&mut Text, With<PointsText>>,
+    mut q_p1: Query<&mut Text, (With<PointsText1>, Without<PointsText2>)>,
+    mut q_p2: Query<&mut Text, (With<PointsText2>, Without<PointsText1>)>,
 ) {
     let points = q_points.single().unwrap();
-    for mut text in &mut query {
-        text.0 = format!("{}:{}", points.player_1, points.player_2);
+    if let Ok(mut text) =q_p1.single_mut() {
+        text.0 = format!("{}", points.player_1);
+    }
+    if let Ok(mut text) =q_p2.single_mut() {
+        text.0 = format!("{}", points.player_2);
     }
 }
 
