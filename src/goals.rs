@@ -129,7 +129,7 @@ fn send_goal_event(goal_type: &GoalType, goal_event_writer: &mut EventWriter<Goa
         GoalType::First => PlayerType::First,
         GoalType::Second => PlayerType::Second,
     };
-    goal_event_writer.send(GoalEvent {
+    goal_event_writer.write(GoalEvent {
         amount: 1,
         player: player_type,
     });

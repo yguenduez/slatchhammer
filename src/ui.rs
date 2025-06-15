@@ -16,15 +16,13 @@ use bevy::{
     },
     prelude::{Deref, DerefMut},
     time::{Time, Timer, TimerMode},
-    ui::{AlignItems, BackgroundColor, JustifyContent, PositionType, UiRect, Val},
+    ui::{AlignItems, JustifyContent, PositionType, UiRect, Val},
 };
-use bevy::ui::AlignContent;
 
 /// Marker to find the container entity so we can show/hide the FPS counter
 #[derive(Component)]
 struct PointDisplayRoot;
 
-/// Marker to find the text entity so we can update it
 #[derive(Component)]
 struct PointsText1;
 

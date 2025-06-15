@@ -113,7 +113,7 @@ fn change_velocity(
             amount: -stamina_change,
             target: target_entity,
         };
-        event_writer.send(ev);
+        event_writer.write(ev);
     }
     vel
 }

@@ -77,7 +77,7 @@ fn reset_game(
     >,
 ) {
     for _ in game_end_event.read() {
-        if let Ok(mut timer) = q_time.get_single_mut() {
+        if let Ok(mut timer) = q_time.single_mut() {
             timer.time.reset();
         }
 
@@ -147,7 +147,7 @@ fn check_game_end(
             }
         };
 
-        event_writer.send(GameEndEvent { end_state });
+        event_writer.write(GameEndEvent { end_state });
     }
 }
 
