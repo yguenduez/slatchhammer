@@ -1,6 +1,6 @@
 use std::f32::consts::FRAC_PI_2;
 
-use crate::colors::{RED, WHITE};
+use crate::colors::{GREY, RED};
 use bevy::prelude::*;
 use bevy::{
     app::{Plugin, Startup},
@@ -76,8 +76,8 @@ fn build_ground(
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(60.0, 30.0))),
         MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgb(0.2, 0.2, 0.2),
-            perceptual_roughness: 0.08,
+            base_color: GREY,
+            perceptual_roughness: 0.8,
             ..default()
         })),
     ));

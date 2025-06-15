@@ -1,4 +1,4 @@
-use crate::colors::{BLACK, GREEN, ORANGE, WHITE};
+use crate::colors::{GREEN, WHITE};
 use crate::{
     constants::DISPLAY_DESPAWN_TIME,
     game_state::{EndState, GameEndEvent, GameTime},
