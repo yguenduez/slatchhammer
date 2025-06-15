@@ -1,3 +1,10 @@
+use crate::colors::{GREEN, ORANGE, WHITE};
+use crate::{
+    constants::DISPLAY_DESPAWN_TIME,
+    game_state::{EndState, GameEndEvent, GameTime},
+    points::Points,
+};
+use bevy::prelude::{Display, Node, Text, TextColor, TextFont, Without};
 use bevy::{
     app::{Plugin, Startup, Update},
     ecs::{
@@ -7,30 +14,20 @@ use bevy::{
         query::With,
         system::{Commands, Query, Res},
     },
-    hierarchy::{BuildChildren, DespawnRecursiveExt},
     prelude::{Deref, DerefMut},
-    text::{Text, TextSection, TextStyle},
     time::{Time, Timer, TimerMode},
-    ui::{
-        node_bundles::{NodeBundle, TextBundle},
-        AlignItems, BackgroundColor, JustifyContent, PositionType, Style, UiRect, Val, ZIndex,
-    },
-};
-
-use crate::colors::{BLACK, GREEN, ORANGE, WHITE};
-use crate::{
-    constants::DISPLAY_DESPAWN_TIME,
-    game_state::{EndState, GameEndEvent, GameTime},
-    points::Points,
+    ui::{AlignItems, JustifyContent, PositionType, UiRect, Val},
 };
 
 /// Marker to find the container entity so we can show/hide the FPS counter
 #[derive(Component)]
 struct PointDisplayRoot;
 
-/// Marker to find the text entity so we can update it
 #[derive(Component)]
-struct PointsText;
+struct PointsText1;
+
+#[derive(Component)]
+struct PointsText2;
 
 #[derive(Component)]
 struct TimeText;
@@ -39,59 +36,24 @@ struct TimeText;
 struct TimeDisplayRoot;
 
 fn setup_time_ui(mut commands: Commands) {
-    let root = commands
-        .spawn((
-            TimeDisplayRoot,
-            NodeBundle {
-                background_color: BackgroundColor(BLACK),
-                // make it "always on top" by setting the Z index to maximum
-                // we want it to be displayed over all other UI
-                z_index: ZIndex::Global(i32::MAX),
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    // position it at the top-right corner
-                    // 1% away from the top window edge
-                    right: Val::Percent(45.),
-                    top: Val::Percent(1.),
-                    // set bottom/left to Auto, so it can be
-                    // automatically sized depending on the text
-                    bottom: Val::Auto,
-                    left: Val::Auto,
-                    // give it some padding for readability
-                    padding: UiRect::all(Val::Px(4.0)),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ))
-        .id();
-
-    let color = TextStyle {
-        font_size: 16.,
-        color: GREEN,
-        ..Default::default()
-    };
-
-    let time_text = commands
-        .spawn((
-            TimeText,
-            TextBundle {
-                // use two sections, so it is easy to update just the number
-                text: Text::from_sections([
-                    TextSection {
-                        value: "Time Left: ".into(),
-                        style: color.clone(),
-                    },
-                    TextSection {
-                        value: "N/A".into(),
-                        style: color,
-                    },
-                ]),
-                ..Default::default()
-            },
-        ))
-        .id();
-    commands.entity(root).push_children(&[time_text]);
+    commands.spawn((
+        TimeDisplayRoot,
+        Node {
+            display: Display::Flex,
+            position_type: PositionType::Absolute,
+            right: Val::Percent(50.),
+            top: Val::Percent(10.),
+            padding: UiRect::all(Val::Px(4.0)),
+            ..Default::default()
+        },
+        TextFont {
+            font_size: 32.0,
+            ..Default::default()
+        },
+        TextColor(GREEN),
+        TimeText,
+        Text("Time Left: N/A".into()),
+    ));
 }
 
 #[derive(Component)]
@@ -105,13 +67,6 @@ fn spawn_game_end_notification(
     mut game_end_event: EventReader<GameEndEvent>,
 ) {
     for ev in game_end_event.read() {
-        println!("I GOT SPAWNED!");
-        let color = TextStyle {
-            font_size: 32.,
-            color: WHITE,
-            ..Default::default()
-        };
-
         let text = match ev.end_state {
             EndState::Player1Won => "Player 1 Won!",
             EndState::Player2Won => "Player 2 Won!",
@@ -119,34 +74,27 @@ fn spawn_game_end_notification(
         }
         .to_string();
 
-        commands
-            .spawn((
-                MainUi,
-                DisplayTime(Timer::from_seconds(DISPLAY_DESPAWN_TIME, TimerMode::Once)),
-                NodeBundle {
-                    background_color: BackgroundColor(BLACK),
-                    z_index: ZIndex::Global(i32::MAX),
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        width: Val::Percent(100.),
-                        height: Val::Percent(100.),
-                        padding: UiRect::all(Val::Px(4.0)),
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..Default::default()
-                    },
+        commands.spawn((
+            MainUi,
+            DisplayTime(Timer::from_seconds(DISPLAY_DESPAWN_TIME, TimerMode::Once)),
+            (Node {
+                position_type: PositionType::Absolute,
+                width: Val::Percent(100.),
+                height: Val::Percent(100.),
+                padding: UiRect::all(Val::Px(4.0)),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            }),
+            (
+                Text(text),
+                TextColor(WHITE),
+                TextFont {
+                    font_size: 32.0,
                     ..Default::default()
                 },
-            ))
-            .with_children(|parent| {
-                parent.spawn((TextBundle {
-                    text: Text::from_sections([TextSection {
-                        value: text,
-                        style: color,
-                    }]),
-                    ..Default::default()
-                },));
-            });
+            ),
+        ));
     }
 }
 
@@ -162,93 +110,66 @@ fn despawn_entities_with_display_time(
 ) {
     for (entity, display_time) in notifications.iter_mut() {
         if display_time.just_finished() {
-            println!("I WAS TRIGGERED!");
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
     }
 }
 
 fn setup_points_ui(mut commands: Commands) {
-    // create our UI root node
-    // this is the wrapper/container for the text
-    let root = commands
-        .spawn((
-            PointDisplayRoot,
-            NodeBundle {
-                // give it a dark background for readability
-                background_color: BackgroundColor(BLACK),
-                // make it "always on top" by setting the Z index to maximum
-                // we want it to be displayed over all other UI
-                z_index: ZIndex::Global(i32::MAX),
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    // position it at the top-right corner
-                    // 1% away from the top window edge
-                    right: Val::Percent(45.),
-                    top: Val::Percent(5.),
-                    // set bottom/left to Auto, so it can be
-                    // automatically sized depending on the text
-                    bottom: Val::Auto,
-                    left: Val::Auto,
-                    // give it some padding for readability
-                    padding: UiRect::all(Val::Px(4.0)),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ))
-        .id();
-
-    let colors: Vec<TextStyle> = [GREEN, WHITE, ORANGE]
-        .iter()
-        .map(|c| TextStyle {
-            font_size: 16.,
-            color: *c,
+    commands.spawn((
+        PointDisplayRoot,
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Percent(45.),
+            bottom: Val::Percent(5.0),
+            padding: UiRect::all(Val::Px(4.0)),
             ..Default::default()
-        })
-        .collect();
-
-    let text_fps = commands
-        .spawn((
-            PointsText,
-            TextBundle {
-                // use two sections, so it is easy to update just the number
-                text: Text::from_sections([
-                    TextSection {
-                        value: "Player 1: ".into(),
-                        style: colors[0].clone(),
-                    },
-                    TextSection {
-                        value: ":".into(),
-                        style: colors[1].clone(),
-                    },
-                    TextSection {
-                        value: "Player 2:".into(),
-                        style: colors[2].clone(),
-                    },
-                ]),
-                ..Default::default()
-            },
-        ))
-        .id();
-    commands.entity(root).push_children(&[text_fps]);
+        },
+        PointsText1,
+        Text("Player 1".into()),
+        TextFont {
+            font_size: 32.0,
+            ..Default::default()
+        },
+        TextColor(GREEN),
+    ));
+    commands.spawn((
+        PointDisplayRoot,
+        Node {
+            position_type: PositionType::Absolute,
+            right: Val::Percent(45.),
+            bottom: Val::Percent(5.0),
+            padding: UiRect::all(Val::Px(4.0)),
+            ..Default::default()
+        },
+        PointsText2,
+        Text("Player 2".into()),
+        TextFont {
+            font_size: 32.0,
+            ..Default::default()
+        },
+        TextColor(ORANGE),
+    ));
 }
 
 fn point_text_update_system(
     q_points: Query<&Points>,
-    mut query: Query<&mut Text, With<PointsText>>,
+    mut q_p1: Query<&mut Text, (With<PointsText1>, Without<PointsText2>)>,
+    mut q_p2: Query<&mut Text, (With<PointsText2>, Without<PointsText1>)>,
 ) {
-    let points = q_points.single();
-    for mut text in &mut query {
-        text.sections[0].value = format!("{}", points.player_1);
-        text.sections[2].value = format!("{}", points.player_2);
+    let points = q_points.single().unwrap();
+    if let Ok(mut text) =q_p1.single_mut() {
+        text.0 = format!("{}", points.player_1);
+    }
+    if let Ok(mut text) =q_p2.single_mut() {
+        text.0 = format!("{}", points.player_2);
     }
 }
 
 fn display_game_time(q_timer: Query<&mut GameTime>, mut query: Query<&mut Text, With<TimeText>>) {
-    if let Ok(game_timer) = q_timer.get_single() {
+    if let Ok(game_timer) = q_timer.single() {
         for mut text in &mut query {
-            text.sections[1].value = format!("{}", game_timer.current_time().as_secs());
+            text.0 = format!("{}", game_timer.current_time().as_secs());
         }
     }
 }

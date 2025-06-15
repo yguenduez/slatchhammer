@@ -1,13 +1,13 @@
 use std::f32::consts::FRAC_PI_2;
 
-use crate::colors::{RED, WHITE};
+use crate::colors::{GREY, RED};
 use bevy::prelude::*;
 use bevy::{
     app::{Plugin, Startup},
     asset::Assets,
     ecs::system::{Commands, ResMut},
-    math::{vec2, vec3, Quat},
-    pbr::{MaterialMeshBundle, NotShadowCaster, PbrBundle, StandardMaterial},
+    math::{vec3, Quat},
+    pbr::{NotShadowCaster, StandardMaterial},
     render::mesh::Mesh,
     transform::components::Transform,
 };
@@ -56,12 +56,9 @@ fn build_arena_walls(
     for (t, m) in transforms_with_mesh {
         commands.spawn((
             NotShadowCaster,
-            MaterialMeshBundle {
-                mesh: m,
-                transform: t,
-                material: material.clone(),
-                ..Default::default()
-            },
+            Mesh3d(m.clone()),
+            Transform::from(t.clone()),
+            MeshMaterial3d(material.clone()),
         ));
     }
 }
@@ -74,14 +71,16 @@ fn build_ground(
     /* Create the ground. */
     commands
         .spawn(Collider::cuboid(200.0, 0.1, 100.0))
-        .insert(TransformBundle::from(Transform::from_xyz(0.0, -0.1, 0.0)));
+        .insert(Transform::from_xyz(0.0, -0.1, 0.0));
 
-    commands.spawn(PbrBundle {
-        // mesh: meshes.add(Plane3d::from_size(100.0).into()),
-        mesh: meshes.add(Plane3d::new(*Dir3::Y, vec2(30.0, 15.0))),
-        material: materials.add(WHITE),
-        ..Default::default()
-    });
+    commands.spawn((
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(60.0, 30.0))),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color: GREY,
+            perceptual_roughness: 0.8,
+            ..default()
+        })),
+    ));
 }
 
 fn build_collider_walls(mut commands: Commands) {
@@ -111,10 +110,7 @@ fn build_collider_walls(mut commands: Commands) {
             c,
             RigidBody::Fixed,
             ColliderMassProperties::Mass(100.0),
-            PbrBundle {
-                transform: t,
-                ..Default::default()
-            },
+            Transform::from(t.clone()),
         ));
     }
 }

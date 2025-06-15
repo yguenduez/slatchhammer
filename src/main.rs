@@ -69,16 +69,15 @@ fn spawn_light(mut commands: Commands) {
     ];
 
     light_poses.into_iter().for_each(|t| {
-        commands.spawn(PointLightBundle {
-            point_light: PointLight {
+        commands.spawn((
+            PointLight {
                 intensity: 10000000.0,
                 range: 70.,
                 shadows_enabled: true,
                 ..default()
             },
-            transform: Transform::from_translation(t),
-            ..default()
-        });
+            Transform::from_translation(t),
+        ));
     })
 }
 
@@ -106,12 +105,11 @@ fn spawn_ball(
         .insert(Velocity::default())
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Restitution::coefficient(1.5))
-        .insert(PbrBundle {
-            mesh,
-            material: debug_material,
-            transform: Transform::from_xyz(0.0, 4.0, 0.0),
-            ..Default::default()
-        });
+        .insert((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(debug_material),
+            Transform::from_xyz(0.0, 4.0, 0.0),
+        ));
 }
 
 fn uv_debug_texture() -> Image {
