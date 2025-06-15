@@ -4,7 +4,7 @@ use crate::{
     game_state::{EndState, GameEndEvent, GameTime},
     points::Points,
 };
-use bevy::prelude::{Node, Text, TextColor, TextFont, Without};
+use bevy::prelude::{Display, Node, Text, TextColor, TextFont, Without};
 use bevy::{
     app::{Plugin, Startup, Update},
     ecs::{
@@ -18,6 +18,7 @@ use bevy::{
     time::{Time, Timer, TimerMode},
     ui::{AlignItems, BackgroundColor, JustifyContent, PositionType, UiRect, Val},
 };
+use bevy::ui::AlignContent;
 
 /// Marker to find the container entity so we can show/hide the FPS counter
 #[derive(Component)]
@@ -40,20 +41,15 @@ fn setup_time_ui(mut commands: Commands) {
     commands.spawn((
         TimeDisplayRoot,
         Node {
+            display: Display::Flex,
             position_type: PositionType::Absolute,
-            // position it at the top-right corner
-            // 1% away from the top window edge
-            right: Val::Percent(45.),
-            top: Val::Percent(1.),
-            // set bottom/left to Auto, so it can be
-            // automatically sized depending on the text
-            bottom: Val::Auto,
-            left: Val::Auto,
+            right: Val::Percent(50.),
+            top: Val::Percent(10.),
             padding: UiRect::all(Val::Px(4.0)),
             ..Default::default()
         },
         TextFont {
-            font_size: 16.0,
+            font_size: 32.0,
             ..Default::default()
         },
         TextColor(GREEN),
@@ -116,7 +112,6 @@ fn despawn_entities_with_display_time(
 ) {
     for (entity, display_time) in notifications.iter_mut() {
         if display_time.just_finished() {
-            println!("I WAS TRIGGERED!");
             commands.entity(entity).despawn();
         }
     }
